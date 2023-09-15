@@ -27,7 +27,7 @@ def allowed_file(filename):
 def serve():
     return send_from_directory(app.static_folder, "index.html")
 
-@app.route('/ap1/v1/upload', methods=["POST"])
+@app.route('/api/v1/upload', methods=["POST"])
 @cross_origin()
 def upload_file():
     if 'files[]' not in request.files:

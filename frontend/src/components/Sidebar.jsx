@@ -7,6 +7,7 @@ const Wrapper = styled.aside`
     border-right: 1px solid hsla(210, 13%, 18%, 1.00);
     padding: 2rem;
     color: white;
+    flex: 1;
 `;
 
 const LinkWrapper = styled.ul`

@@ -12,6 +12,7 @@ const MainContent = styled.main`
     padding: 48px 64px;
     height: 100%;
     width: 100%;
+    flex: 4;
 `;
 
 export default function Root() {
