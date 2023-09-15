@@ -22,10 +22,10 @@ def allowed_file(filename):
 #         "setup": "Flask React Heroku"
 #     }
 
-# @app.route('/')
-# @cross_origin()
-# def serve():
-#     return send_from_directory(app.static_folder, "index.html")
+@app.route('/')
+@cross_origin()
+def serve():
+    return send_from_directory(app.static_folder, "index.html")
 
 @app.route('/ap1/v1/upload', methods=["POST"])
 @cross_origin()
