@@ -4,6 +4,7 @@ from flask_cors import CORS, cross_origin
 import os
 from werkzeug.utils import secure_filename
 import csv
+import pandas as pd
 
 app = Flask(__name__, static_folder="frontend/build", static_url_path="")
 cors = CORS(app)
@@ -85,6 +86,24 @@ def visualize_data():
         return jsonify({"error": "CSV file not found"})
     
     return jsonify(data)
+
+
+@app.route('/api/v1/statistics', methods=['GET'])
+@cross_origin()
+def get_statistics():
+    filename = 'clustering_data.csv'
+    file_path = f"./static/uploads/{filename}"
+
+    try:
+        df = pd.read_csv(file_path)
+        desc = df.describe(include='all').transpose()
+        stats_json = desc.to_json(orient="index")
+
+        return stats_json, 200
+    except FileNotFoundError:
+        return jsonify({"error": "CSV file not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run()

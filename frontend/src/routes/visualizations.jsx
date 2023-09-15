@@ -5,7 +5,7 @@ import axios from "axios";
 
 export default function Visualizations() {
   const [data, setData] = useState([]);
-
+  
   useEffect(() => {
     const apiUrl = 'http://localhost:5000/api/v1/visualize';
   
