@@ -3,6 +3,7 @@ from flask.helpers import send_from_directory
 from flask_cors import CORS, cross_origin
 import os
 from werkzeug.utils import secure_filename
+import csv
 
 app = Flask(__name__, static_folder="frontend/build", static_url_path="")
 cors = CORS(app)
@@ -62,6 +63,28 @@ def upload_file():
         resp = jsonify(errors)
         resp.status_code = 500
         return resp
+
+@app.route('/api/v1/analize', methods=['GET'])
+@cross_origin()
+def analize_data():
+    pass
+
+@app.route('/api/v1/visualize', methods=['GET'])
+@cross_origin()
+def visualize_data():
+    filename = 'clustering_data.csv'
+    file = f"./static/uploads/{filename}"
+    data = []
+
+    try:
+        with open(file, 'r') as f:
+            csv_reader = csv.DictReader(f)
+            for row in csv_reader:
+                data.append(row)
+    except:
+        return jsonify({"error": "CSV file not found"})
+    
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run()

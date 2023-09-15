@@ -6,6 +6,9 @@ import {
 import Root from "./routes/root";
 import ErrorPage from "./routes/error-page";
 import FileUpload from "./routes/file-upload";
+import StatisticalAnalysis from "./routes/statistical-analysis";
+import Visualizations from "./routes/visualizations";
+import DataPreprocessing from "./routes/data-preprocessing";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +19,18 @@ const router = createBrowserRouter([
       {
         path: "upload",
         element: <FileUpload />,
+      },
+      {
+        path: "data-preprocessing",
+        element: <DataPreprocessing />,
+      },
+      {
+        path: "statistical-analysis",
+        element: <StatisticalAnalysis />,
+      },
+      {
+        path: "visualizations",
+        element: <Visualizations />,
       },
     ]
   },

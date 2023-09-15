@@ -32,18 +32,18 @@ const Sidebar = () => {
                     </StyledLink>
                 </li>
                 <li>
-                    <StyledLink to="/#">
+                    <StyledLink to={`data-preprocessing`}>
                         <Activity />Data Preprocessing
                     </StyledLink>
                 </li>
                 <li>
-                    <StyledLink to="/#">
+                    <StyledLink to={`statistical-analysis`}>
                         <BarChart2 />Statistical Analysis
                     </StyledLink>
                 </li>
                 <li>
-                    <StyledLink to="/#">
-                        <PieChart />Visualization
+                    <StyledLink to={`visualizations`}>
+                        <PieChart />Visualizations
                     </StyledLink>
                 </li>
             </LinkWrapper>
