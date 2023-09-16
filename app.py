@@ -101,6 +101,7 @@ def get_statistics():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/', methods=['GET'])
 @app.route('/<path>', methods=['GET'])
 @cross_origin()
 def serve_index_html(path):
