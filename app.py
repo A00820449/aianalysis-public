@@ -24,6 +24,11 @@ def allowed_file(filename):
 #         "setup": "Flask React Heroku"
 #     }
 
+@app.route('/', methods=['GET'])
+@cross_origin()
+def serve():
+    return send_from_directory(app.static_folder, "index.html")
+
 @app.route('/api/v1/upload', methods=["POST"])
 @cross_origin()
 def upload_file():
@@ -101,7 +106,6 @@ def get_statistics():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/', methods=['GET'])
 @app.route('/<path>', methods=['GET'])
 @cross_origin()
 def serve_index_html(path):
