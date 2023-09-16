@@ -2,12 +2,13 @@ import styled from "styled-components";
 import React, { useEffect, useState } from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import axios from "axios";
+import { visualizeURL } from "../config/backendURL";
 
 export default function Visualizations() {
   const [data, setData] = useState([]);
   
   useEffect(() => {
-    const apiUrl = 'http://localhost:5000/api/v1/visualize';
+    const apiUrl = visualizeURL
   
     axios.get(apiUrl)
       .then((response) => {

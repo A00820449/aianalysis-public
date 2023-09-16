@@ -3,6 +3,7 @@ import axios from "axios"
 import styled from 'styled-components';
 import { ImageConfig } from '../config/ImageConfig'; 
 import { X } from "react-feather";
+import { uploadURL } from "../config/backendURL";
 
 const FileUploader = () => {
   const [files, setFiles] = useState([])
@@ -25,7 +26,7 @@ const FileUploader = () => {
   
         try {
           // Replace the URL with your server endpoint
-          const response = await axios.post("http://127.0.0.1:5000/api/v1/upload", formData);
+          const response = await axios.post(uploadURL, formData);
   
           console.log(response.data);
         } catch (error) {

@@ -18,7 +18,9 @@ class Example extends Component {
   }
 
   componentDidMount() {
-    const apiUrl = 'http://localhost:5000/api/v1/visualize';
+    const apiUrl = new URL(process.env.BACKEND_BASE_URL)
+    apiUrl.pathname = '/api/v1/visualize'
+
 
     axios.get(apiUrl)
       .then((response) => {

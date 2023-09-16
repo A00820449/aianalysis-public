@@ -1,12 +1,13 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
+import { statisticsURL } from "../config/backendURL";
 
 export default function StatisticalAnalysis() {
   const [stats, setStats] = useState({});
 
   useEffect(() => {
-    const apiUrl = 'http://localhost:5000/api/v1/statistics';
+    const apiUrl = statisticsURL;
     
     axios.get(apiUrl)
       .then((response) => {
