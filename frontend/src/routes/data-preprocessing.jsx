@@ -1,13 +1,27 @@
 import styled from "styled-components";
 
 export default function DataPreprocessing() {
+
+  const cleanHere = () => {
+    const apiUrl = 'http://localhost:5000/api/v1/cleanData';
+    
+    axios.get(apiUrl)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error('Error Cleaning Data:', error);
+      });
+  }
+
   return (
     <Wrapper>
       <HeaderWrapper>
         <Title>Data Preprocessing</Title>
         <Description>Select file</Description>
       </HeaderWrapper>
-</Wrapper>
+      <button onClick={cleanHere}>Clean Here!</button>
+    </Wrapper>
   );
 }
 
