@@ -68,6 +68,9 @@ def upload_file():
 @app.route('/api/v1/cleanData', methods=["GET"])
 @cross_origin()
 def clean_data():
+    # Get the operation parameter from the request
+    operation = request.args.get('operation')
+
     # Define a function to clean the data based on the specified method
     def clean_file(file_path, method):
         try:
@@ -79,18 +82,21 @@ def clean_data():
             if method == 'remove_missing':
                 # Remove rows with missing values in any column
                 df.dropna(inplace=True)
+                rows_changed = original_rows - len(df)  # Calculate rows dropped
             elif method == 'replace_missing_with_mean':
+                # Create a copy of the DataFrame for comparison
+                original_df = df.copy()
+
                 # Replace missing values with column means
                 df.fillna(df.mean(), inplace=True)
+
+                # Count the rows where values were updated
+                rows_changed = (original_df != df).any(axis=1).sum()
             else:
                 raise ValueError("Invalid cleaning method")
 
-            cleaned_rows = len(df)  # Get the number of rows after cleaning
-
             # Save the cleaned DataFrame back to the same file
             df.to_csv(file_path, index=False)
-
-            rows_changed = original_rows - cleaned_rows
 
             return rows_changed  # Return the number of rows changed
         except Exception as e:
@@ -101,6 +107,11 @@ def clean_data():
 
     # Define the cleaning method ('remove_missing' or 'replace_missing_with_mean')
     cleaning_method = 'remove_missing'  # Change this to the desired method
+
+    if operation == 'clean':
+        cleaning_method = 'remove_missing'
+    elif operation == 'patch':
+        cleaning_method = 'replace_missing_with_mean'
 
     # Track the total number of rows changed across all files
     total_rows_changed = 0
@@ -113,10 +124,19 @@ def clean_data():
             rows_changed = clean_file(file_path, cleaning_method)
             total_rows_changed += rows_changed
 
-    # Return a response indicating the total number of rows changed
-    resp = jsonify({'message': f'Total rows changed: {total_rows_changed}'})
+    # Create the response message
+    response_message = f'Total rows changed: {total_rows_changed} ({operation})'
+
+    # Print the response message to the console
+    print(response_message)
+
+    # Return a response indicating the total number of rows changed and the operation performed
+    resp = jsonify({'message': response_message})
     resp.status_code = 200
     return resp
+
+
+
 
 
 @app.route('/api/v1/analize', methods=['GET'])
