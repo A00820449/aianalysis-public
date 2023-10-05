@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 
 export default function StatisticalAnalysis() {
-  const [stats, setStats] = useState({});
+  const [allStats, setAllStats] = useState({});
 
   useEffect(() => {
     const apiUrl = 'http://localhost:5000/api/v1/statistics';
     
     axios.get(apiUrl)
       .then((response) => {
-        setStats(response.data);
+        setAllStats(response.data);
       })
       .catch((error) => {
         console.error('Error fetching statistics:', error);
@@ -24,20 +24,34 @@ export default function StatisticalAnalysis() {
         <Description>Basic statistical values for CSV data</Description>
       </HeaderWrapper>
       <StatsContainer>
-        {Object.entries(stats).map(([column, values]) => (
-          <StatCard key={column}>
-            <ColumnName>{column}</ColumnName>
-            {Object.entries(values).map(([key, value]) => (
-              <StatRow key={key}>
-                <StatKey>{key}</StatKey>: <StatValue>{value}</StatValue>
-              </StatRow>
+        {Object.entries(allStats).map(([filename, stats]) => (
+          <div key={filename}>
+            <h2>{filename}</h2>
+            {Object.entries(stats).map(([column, values]) => (
+              <StatCard key={column}>
+                <ColumnName>{column}</ColumnName>
+                {Object.entries(values).map(([key, value]) => (
+                  <StatRow key={key}>
+                    <StatKey>{key}</StatKey>: <StatValue>{String(value)}</StatValue>
+                  </StatRow>
+                ))}
+              </StatCard>
             ))}
-          </StatCard>
+          </div>
         ))}
       </StatsContainer>
     </Wrapper>
   );
 }
+
+// ... [Rest of the component styles]
+
+// Add a style for handling potential overflow of long numbers
+const StatValue = styled.span`
+  font-weight: 400;
+  overflow-wrap: break-word;  // This line helps with the overflow issue
+`;
+
 
 const Wrapper = styled.div`
   height: 100%;
@@ -90,8 +104,4 @@ const StatRow = styled.div`
 
 const StatKey = styled.span`
   font-weight: 500;
-`;
-
-const StatValue = styled.span`
-  font-weight: 400;
 `;
