@@ -11,3 +11,6 @@ export const statisticsURL = baseURL.toString()
 
 baseURL.pathname = '/api/v1/upload'
 export const uploadURL = baseURL.toString()
+
+baseURL.pathname = '/api/v1/cleanData'
+export const cleanDataURL = baseURL.toString()

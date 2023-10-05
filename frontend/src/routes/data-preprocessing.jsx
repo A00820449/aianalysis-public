@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import axios from "axios";
+import { cleanDataURL } from "../config/backendURL";
 
 export default function DataPreprocessing() {
-  const apiUrl = 'http://localhost:5000/api/v1/cleanData';
+  const apiUrl = cleanDataURL
 
   const cleanHere = () => {
     axios.get(apiUrl, { params: { operation: 'clean' } })
