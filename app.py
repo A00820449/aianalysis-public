@@ -192,11 +192,11 @@ def get_statistics():
                     all_stats[filename] = json.loads(stats_json)
 
                 elif file_type == "Cluster":
-                    kmeans = KMeans(n_clusters=3)
+                    kmeans = KMeans(n_clusters=2)
                     kmeans.fit(df)
                     clusters, counts = np.unique(kmeans.labels_, return_counts=True)
                     cluster_data = {
-                        f"Cluster {cluster}": {
+                        f"Cluster {cluster+1}": {
                             "Count": int(count),
                             "Centroid": [round(float(val), 2) for val in kmeans.cluster_centers_[cluster]]
                         }
