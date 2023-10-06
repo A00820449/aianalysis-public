@@ -94,6 +94,22 @@ def clean_data():
                 df.fillna(df.mean(), inplace=True)
 
                 rows_changed = (original_df != df).any(axis=1).sum()
+
+            elif method == 'eliminate_outliers':
+                # Calcular el rango intercuartílico (IQR) para cada columna numérica
+                Q1 = df.quantile(0.25)
+                Q3 = df.quantile(0.75)
+                IQR = Q3 - Q1
+                
+                # Definir límites para considerar outliers
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
+                
+                # Eliminar filas que contienen outliers en al menos una columna numérica
+                df = df[~((df < lower_bound) | (df > upper_bound)).any(axis=1)]
+                
+                rows_changed = original_rows - len(df)  # Calcular filas eliminadas
+               
             else:
                 raise ValueError("Invalid cleaning method")
 
@@ -110,6 +126,8 @@ def clean_data():
         cleaning_method = 'remove_missing'
     elif operation == 'patch':
         cleaning_method = 'replace_missing_with_mean'
+    elif operation == 'outliers':
+        cleaning_method = 'eliminate_outliers'
 
     total_rows_changed = 0
 
