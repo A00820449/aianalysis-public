@@ -28,11 +28,11 @@ const Description = styled.p`
 `;
 
 const Dropdown = styled.select`
-  padding: 0.2rem 0.5rem /* Ajusta el padding para hacer el dropdown más corto */
-  width: 150px /* Ancho del dropdown */
-  font-size: 0.9rem; /* Tamaño del texto del dropdown */
-  background-color: black; /* Fondo negro */
-  color: white; /* Texto blanco */
+  padding: 0.2rem 0.5rem 
+  width: 150px 
+  font-size: 0.9rem; 
+  background-color: black;
+  color: white; 
 `;
 
 const DataPreprocessing = () => {
@@ -46,7 +46,6 @@ const DataPreprocessing = () => {
   };
 
   const handleOperationSubmit = () => {
-    // Hacer la solicitud al backend con la operación seleccionada
     axios.get(apiUrl, { params: { operation: selectedOperation } })
       .then((response) => {
         setMessage(response.data.message);
@@ -65,18 +64,18 @@ const DataPreprocessing = () => {
         
       </HeaderWrapper>
 
-      {/* Dropdown para seleccionar la operación */}
+      {/* Dropdown */}
       <Dropdown value={selectedOperation} onChange={handleOperationChange}>
         <option value="clean">Clean</option>
         <option value="patch">Patch</option>
-        <option value="Eliminate outliers">Eliminate outliers</option>
-        {/* Agrega más opciones según tus necesidades */}
+        <option value="outliers">Eliminate outliers</option>
+        {/* Add more options */}
       </Dropdown>
 
-      {/* Botón para enviar la operación seleccionada */}
+      
       <button onClick={handleOperationSubmit}>Submit</button>
 
-      {/* Mostrar el mensaje del backend */}
+      
       <div>
         <strong>Changes:</strong> {message}
       </div>
