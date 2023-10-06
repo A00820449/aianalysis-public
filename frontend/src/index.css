@@ -37,7 +37,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 html, body, #root {
   height: 100%;
-  background-color: hsla(210, 13%, 6%, 1.00);
+  background-color: #0d0f11;
 }
 
 html {
@@ -45,26 +45,37 @@ html {
   color: hsla(210, 8%, 90%, 1.00);
 }
 
-/* Change the background color for the entire body */
 body {
   background-color: #2a2a2a;
   color: #fff;
 }
 
-/* Change the title color */
 h1 {
   color: #c8e8e6;
 }
 
-/* Darken the background for Ant Design cards and set text color */
 .ant-card {
   background-color: #3a3a3a;
-  color: #fff;
+  color: #ffff;
 }
 
-/* Optional: Add hover effects for Ant Design cards */
+.ant-card-head-title {
+  color: #ffff;
+}
+
+.ant-table-thead {
+  background-color: #1a1818;
+  color: #000000;
+}
+
 .ant-card:hover {
+  color: #000000;
   background-color: #4a4a4a;
   transition: background-color 0.3s ease;
 }
+
+.row-style td {
+  background-color: #0d0f11;
+}
+
 
