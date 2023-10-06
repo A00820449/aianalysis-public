@@ -3,7 +3,7 @@ const baseURL = new URL(process.env.REACT_APP_BACKEND_BASE_URL)
 baseURL.pathname = '/api/v1/visualize'
 export const visualizeURL = baseURL.toString()
 
-baseURL.pathname = '/api/v1/analize'
+baseURL.pathname = '/api/v1/analyze'
 export const analizeURL = baseURL.toString()
 
 baseURL.pathname = '/api/v1/statistics'

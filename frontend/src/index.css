@@ -68,12 +68,6 @@ h1 {
   color: #000000;
 }
 
-.ant-card:hover {
-  color: #000000;
-  background-color: #4a4a4a;
-  transition: background-color 0.3s ease;
-}
-
 .row-style thead {
   background-color: #ff4000;
 }
@@ -88,5 +82,10 @@ h1 {
 }
 
 .ant-table-thead .ant-table-cell {
-  background-color: rgb(210, 220, 243) !important;
+  background-color: rgb(171, 194, 243) !important;
+}
+
+.ant-table-row:hover .ant-table-cell{
+  background-color: #1a1818 !important;
+  color: #000000;
 }
