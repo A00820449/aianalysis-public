@@ -1,6 +1,15 @@
 from flask import Flask, json, request, jsonify
 from flask.helpers import send_from_directory
 from flask_cors import CORS, cross_origin
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_samples
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from statsmodels.tsa.stattools import acf
+import numpy as np
 import os
 from werkzeug.utils import secure_filename
 import csv
@@ -9,6 +18,7 @@ import pandas as pd
 app = Flask(__name__, static_folder="frontend/build", static_url_path="")
 cors = CORS(app)
 
+data_type = {}
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -135,10 +145,6 @@ def clean_data():
     resp.status_code = 200
     return resp
 
-
-
-
-
 @app.route('/api/v1/analize', methods=['GET'])
 @cross_origin()
 def analize_data():
@@ -147,7 +153,7 @@ def analize_data():
 @app.route('/api/v1/visualize', methods=['GET'])
 @cross_origin()
 def visualize_data():
-    filename = 'clustering_data.csv'
+    filename = 'parabola_data.csv'
     file = f"./static/uploads/{filename}"
     data = []
 
@@ -165,19 +171,122 @@ def visualize_data():
 @app.route('/api/v1/statistics', methods=['GET'])
 @cross_origin()
 def get_statistics():
-    filename = 'clustering_data.csv'
+    global data_type
+    all_stats = {}
+
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        if filename.endswith('.csv'):
+            determine_data_type(filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            try:
+                df = pd.read_csv(file_path)
+                file_type = data_type.get(filename, "Unknown")
+                stats_json = df.describe(include='all').transpose().to_json(orient="index")
+
+                if file_type == "Linear Model":
+                    all_stats[filename] = json.loads(stats_json)
+
+                elif file_type == "Cluster":
+                    kmeans = KMeans(n_clusters=2)
+                    kmeans.fit(df)
+                    clusters, counts = np.unique(kmeans.labels_, return_counts=True)
+                    cluster_data = {
+                        f"Cluster {cluster+1}": {
+                            "Count": int(count),
+                            "Centroid": [round(float(val), 2) for val in kmeans.cluster_centers_[cluster]]
+                        }
+                        for cluster, count in zip(clusters, counts)
+                    }
+                    all_stats[filename] = cluster_data
+
+                elif file_type == "Parabola":
+                    stats = json.loads(stats_json)
+                    X = df.iloc[:, :-1].values
+                    y = df.iloc[:, -1].values
+                    poly_reg = PolynomialFeatures(degree=2)
+                    X_poly = poly_reg.fit_transform(X)
+                    pol_reg = LinearRegression()
+                    pol_reg.fit(X_poly, y)
+                    a = pol_reg.coef_[2]
+                    b = pol_reg.coef_[1]
+                    c = pol_reg.intercept_
+                    
+                    vertex_x = -b / (2 * a)
+                    vertex_y = c - (b**2 / (4*a))
+                    
+                    stats["Vertex"] = {"x": vertex_x, "y": vertex_y}
+                    all_stats[filename] = stats
+                    
+                    return jsonify(all_stats)
+                elif file_type == "Time Series":
+                    all_stats[filename] = json.loads(stats_json)
+
+                else:
+                    response_message = f'Unknown data type {file_type})'
+                    return jsonify({"error": response_message}), 400
+
+            except FileNotFoundError:
+                return jsonify({"error": f"{filename} not found"}), 404
+            except Exception as e:
+                print(e)
+                return jsonify({"error": str(e)}), 500
+
+    return jsonify(all_stats)
+
+    
+def determine_data_type(filename):
+    global data_type
     file_path = f"./static/uploads/{filename}"
+        
+    if not os.path.exists(file_path):
+        data_type[filename]= "Unknown"
+        return
 
+    data = pd.read_csv(file_path)
+    X = data.iloc[:, :-1]
+    y = data.iloc[:, -1]
+
+    # Linear Regression Check
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    lin_reg = LinearRegression()
+    lin_reg.fit(X_train, y_train)
+    predictions = lin_reg.predict(X_test)
+    mse = mean_squared_error(y_test, predictions)
+    normalized_mse = mse / (y_test.max() - y_test.min())
+
+    if normalized_mse < 0.1:
+        data_type[filename] = "Linear Model"
+        return
+
+    # Parabola Check
+    polynomial = make_pipeline(PolynomialFeatures(2), LinearRegression())
+    polynomial.fit(X_train, y_train)
+    poly_mse = mean_squared_error(y_test, polynomial.predict(X_test))
+
+    if poly_mse < 0.5:
+        data_type[filename] = "Parabola"
+        return
+
+    # Cluster Check
+    kmeans = KMeans(n_clusters=2)
+    kmeans.fit(X)
+    silhouette_score = np.mean(silhouette_samples(X, kmeans.labels_))
+    if silhouette_score > 0.3:
+        data_type[filename] = "Cluster"
+        return
+
+    # Time Series Check
     try:
-        df = pd.read_csv(file_path)
-        desc = df.describe(include='all').transpose()
-        stats_json = desc.to_json(orient="index")
-
-        return stats_json, 200
-    except FileNotFoundError:
-        return jsonify({"error": "CSV file not found"}), 404
+        X.iloc[:, 0] = pd.to_datetime(X.iloc[:, 0])  # Convert the first column to datetime
+        autocorrelation = acf(y, nlags=40, fft=True)
+        if autocorrelation[1] > 0.5:
+            data_type[filename] = "Time Series"
+            return
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error in Time Series check: {e}")
+    
+    data_type[filename] = "Unknown"
+    
 
 
 @app.route('/<path>', methods=['GET'])

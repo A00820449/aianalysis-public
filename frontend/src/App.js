@@ -2,7 +2,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-
+import 'antd/dist/reset.css';
 import Root from "./routes/root";
 import ErrorPage from "./routes/error-page";
 import FileUpload from "./routes/file-upload";
