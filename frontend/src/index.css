@@ -86,3 +86,7 @@ h1 {
   background-color: #1a1818;
   color: #000000;
 }
+
+.ant-table-thead .ant-table-cell {
+  background-color: rgb(210, 220, 243) !important;
+}
