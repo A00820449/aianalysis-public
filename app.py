@@ -104,8 +104,19 @@ def clean_data():
                 rows_changed = (original_df != df).any(axis=1).sum()
 
             elif method == 'eliminate_outliers' :
-                    data_dict = df.to_dict(orient='records')
-                    return jsonify(data_dict)
+                    # Eliminar outliers usando el rango intercuartílico (IQR)
+                for column in df.select_dtypes(include=['number']).columns:
+                    Q1 = df[column].quantile(0.25)
+                    Q3 = df[column].quantile(0.75)
+                    IQR = Q3 - Q1
+                    
+                    lower_bound = Q1 - 1.5 * IQR
+                    upper_bound = Q3 + 1.5 * IQR
+                    
+                    # Eliminar filas que contienen outliers
+                    df = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+                
+                rows_changed = original_rows - len(df)  # Calcular filas eliminadas
             
             else:
                 raise ValueError("Invalid cleaning method")
@@ -127,6 +138,8 @@ def clean_data():
         cleaning_method = 'remove_missing'
     elif operation == 'patch':
         cleaning_method = 'replace_missing_with_mean'
+    elif operation == 'Eliminate outliers' :
+        cleaning_method == 'eliminate_outliers'
 
     # Track the total number of rows changed across all files
     total_rows_changed = 0

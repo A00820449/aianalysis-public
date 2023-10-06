@@ -27,31 +27,33 @@ const Description = styled.p`
   margin-top: 1rem;
 `;
 
+const Dropdown = styled.select`
+  padding: 0.2rem 0.5rem /* Ajusta el padding para hacer el dropdown más corto */
+  width: 150px /* Ancho del dropdown */
+  font-size: 0.9rem; /* Tamaño del texto del dropdown */
+  background-color: black; /* Fondo negro */
+  color: white; /* Texto blanco */
+`;
+
 const DataPreprocessing = () => {
-  const [message, setMessage] = useState("");  // Nuevo estado para almacenar el mensaje del backend
+  const [message, setMessage] = useState("");
+  const [selectedOperation, setSelectedOperation] = useState("clean");
   const apiUrl = cleanDataURL;
 
-  const cleanHere = () => {
-    axios.get(apiUrl, { params: { operation: 'clean' } })
-      .then((response) => {
-        // Cuando el backend responde, establece el mensaje en el estado
-        setMessage(response.data.message);
-        console.log(response.data.message);
-      })
-      .catch((error) => {
-        console.error('Error Cleaning Data:', error);
-      });
+
+  const handleOperationChange = (event) => {
+    setSelectedOperation(event.target.value);
   };
 
-  const patchHere = () => {
-    axios.get(apiUrl, { params: { operation: 'patch' } })
+  const handleOperationSubmit = () => {
+    // Hacer la solicitud al backend con la operación seleccionada
+    axios.get(apiUrl, { params: { operation: selectedOperation } })
       .then((response) => {
-        // Cuando el backend responde, establece el mensaje en el estado
         setMessage(response.data.message);
         console.log(response.data.message);
       })
       .catch((error) => {
-        console.error('Error Patching Data:', error);
+        console.error('Error Processing Data:', error);
       });
   };
 
@@ -62,8 +64,17 @@ const DataPreprocessing = () => {
         <Description>Select file</Description>
         
       </HeaderWrapper>
-      <button onClick={cleanHere}>Clean Here!</button>
-      <button onClick={patchHere}>Patch Here!</button>
+
+      {/* Dropdown para seleccionar la operación */}
+      <Dropdown value={selectedOperation} onChange={handleOperationChange}>
+        <option value="clean">Clean</option>
+        <option value="patch">Patch</option>
+        <option value="Eliminate outliers">Eliminate outliers</option>
+        {/* Agrega más opciones según tus necesidades */}
+      </Dropdown>
+
+      {/* Botón para enviar la operación seleccionada */}
+      <button onClick={handleOperationSubmit}>Submit</button>
 
       {/* Mostrar el mensaje del backend */}
       <div>
@@ -74,3 +85,4 @@ const DataPreprocessing = () => {
 };
 
 export default DataPreprocessing;
+
