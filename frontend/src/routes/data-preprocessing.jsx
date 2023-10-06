@@ -1,41 +1,7 @@
+import React, { useState } from 'react';
 import styled from "styled-components";
 import axios from "axios";
-import { analizeURL } from "../config/backendURL";
-export default function DataPreprocessing() {
-  const apiUrl = analizeURL;
-
-  const cleanHere = () => {
-    axios.get(apiUrl, { params: { operation: 'clean' } })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error('Error Cleaning Data:', error);
-      });
-  }
-
-  const patchHere = () => {
-    axios.get(apiUrl, { params: { operation: 'patch' } })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error('Error Patching Data:', error);
-      });
-  }
-
-  return (
-    <Wrapper>
-      <HeaderWrapper>
-        <Title>Data Preprocessing</Title>
-        <Description>Select file</Description>
-      </HeaderWrapper>
-      <button onClick={cleanHere}>Clean Here!</button>
-      <button onClick={patchHere}>Patch Here!</button>
-    </Wrapper>
-  );
-}
-
+import { cleanDataURL } from "../config/backendURL";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -60,3 +26,51 @@ const Description = styled.p`
   line-height: 1.5;
   margin-top: 1rem;
 `;
+
+const DataPreprocessing = () => {
+  const [message, setMessage] = useState("");  // Nuevo estado para almacenar el mensaje del backend
+  const apiUrl = cleanDataURL;
+
+  const cleanHere = () => {
+    axios.get(apiUrl, { params: { operation: 'clean' } })
+      .then((response) => {
+        // Cuando el backend responde, establece el mensaje en el estado
+        setMessage(response.data.message);
+        console.log(response.data.message);
+      })
+      .catch((error) => {
+        console.error('Error Cleaning Data:', error);
+      });
+  };
+
+  const patchHere = () => {
+    axios.get(apiUrl, { params: { operation: 'patch' } })
+      .then((response) => {
+        // Cuando el backend responde, establece el mensaje en el estado
+        setMessage(response.data.message);
+        console.log(response.data.message);
+      })
+      .catch((error) => {
+        console.error('Error Patching Data:', error);
+      });
+  };
+
+  return (
+    <Wrapper>
+      <HeaderWrapper>
+        <Title>Data Preprocessing</Title>
+        <Description>Select file</Description>
+        
+      </HeaderWrapper>
+      <button onClick={cleanHere}>Clean Here!</button>
+      <button onClick={patchHere}>Patch Here!</button>
+
+      {/* Mostrar el mensaje del backend */}
+      <div>
+        <strong>Changes:</strong> {message}
+      </div>
+    </Wrapper>
+  );
+};
+
+export default DataPreprocessing;

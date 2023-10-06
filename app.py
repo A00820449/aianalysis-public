@@ -102,6 +102,11 @@ def clean_data():
 
                 # Count the rows where values were updated
                 rows_changed = (original_df != df).any(axis=1).sum()
+
+            elif method == 'eliminate_outliers' :
+                    data_dict = df.to_dict(orient='records')
+                    return jsonify(data_dict)
+            
             else:
                 raise ValueError("Invalid cleaning method")
 
