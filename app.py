@@ -157,7 +157,7 @@ def analize_data():
 @app.route('/api/v1/visualize', methods=['GET'])
 @cross_origin()
 def visualize_data():
-    filename = 'datos.csv'
+    filename = 'parabola_data.csv'
     file = f"./static/uploads/{filename}"
     data = []
 
@@ -178,7 +178,6 @@ def get_statistics():
     global data_type
     all_stats = {}
 
-    # Iterate through all files in the upload directory
     for filename in os.listdir(app.config['UPLOAD_FOLDER']):
         if filename.endswith('.csv'):
             determine_data_type(filename)
@@ -205,8 +204,24 @@ def get_statistics():
                     all_stats[filename] = cluster_data
 
                 elif file_type == "Parabola":
-                    all_stats[filename] = json.loads(stats_json)
-
+                    stats = json.loads(stats_json)
+                    X = df.iloc[:, :-1].values
+                    y = df.iloc[:, -1].values
+                    poly_reg = PolynomialFeatures(degree=2)
+                    X_poly = poly_reg.fit_transform(X)
+                    pol_reg = LinearRegression()
+                    pol_reg.fit(X_poly, y)
+                    a = pol_reg.coef_[2]
+                    b = pol_reg.coef_[1]
+                    c = pol_reg.intercept_
+                    
+                    vertex_x = -b / (2 * a)
+                    vertex_y = c - (b**2 / (4*a))
+                    
+                    stats["Vertex"] = {"x": vertex_x, "y": vertex_y}
+                    all_stats[filename] = stats
+                    
+                    return jsonify(all_stats)
                 elif file_type == "Time Series":
                     all_stats[filename] = json.loads(stats_json)
 
