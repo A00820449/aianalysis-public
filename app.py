@@ -19,55 +19,58 @@ app = Flask(__name__, static_folder="frontend/build", static_url_path="")
 cors = CORS(app)
 
 data_type = {}
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+UPLOAD_FOLDER = "static/uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = set(["csv"])
 
+
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# @app.route('/api', methods=["GET"])
-# @cross_origin()
-# def index():
-#     return {
-#         "setup": "Flask React Heroku"
-#     }
 
-@app.route('/', methods=['GET'])
+@app.route("/", methods=["GET"])
 @cross_origin()
 def serve():
     return send_from_directory(app.static_folder, "index.html")
 
-@app.route('/api/v1/upload', methods=["POST"])
+
+def file_exists(filename):
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    return os.path.exists(file_path)
+
+
+@app.route("/api/v1/upload", methods=["POST"])
 @cross_origin()
 def upload_file():
-    if 'files[]' not in request.files:
-        resp = jsonify({'message': 'No file part in the request'})
+    if "file" not in request.files:
+        resp = jsonify({"message": "No file part in the request"})
         resp.status_code = 400
         return resp
-    
-    files = request.files.getlist('files[]')
+
+    file = request.files["file"]
 
     errors = {}
     success = False
 
-    for file in files:
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            success = True
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        if file_exists(filename):
+            errors[file.filename] = "File already exists"
         else:
-            errors[file.filename] = 'File type is not allowed'
-    
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            success = True
+    else:
+        errors[file.filename] = "File type is not allowed"
+
     if success and errors:
-        errors['message'] = 'File(s) successfully uploaded'
+        errors["message"] = "File successfully uploaded"
         resp = jsonify(errors)
         resp.status_code = 500
         return resp
 
     if success:
-        resp = jsonify({'message':'File(s) successfully uploaded'})
+        resp = jsonify({"message": "File successfully uploaded"})
         resp.status_code = 201
         return resp
     else:
@@ -75,113 +78,123 @@ def upload_file():
         resp.status_code = 500
         return resp
 
-@app.route('/api/v1/analyze', methods=["GET"])
+
+@app.route("/api/v1/analyze", methods=["GET"])
 @cross_origin()
 def clean_data():
-    operation = request.args.get('operation')
+    # Get the operation parameter from the request
+    operation = request.args.get("operation")
+
+    # Define a function to clean the data based on the specified method
     def clean_file(file_path, method):
         try:
             df = pd.read_csv(file_path)
-            original_rows = len(df)
-            if method == 'remove_missing':
+
+            original_rows = len(df)  # Get the original number of rows
+
+            if method == "remove_missing":
+                # Remove rows with missing values in any column
                 df.dropna(inplace=True)
-                rows_changed = original_rows - len(df)
-            elif method == 'replace_missing_with_mean':
-
+                rows_changed = original_rows - len(df)  # Calculate rows dropped
+            elif method == "replace_missing_with_mean":
+                # Create a copy of the DataFrame for comparison
                 original_df = df.copy()
-
 
                 df.fillna(df.mean(), inplace=True)
 
                 rows_changed = (original_df != df).any(axis=1).sum()
 
-            elif method == 'eliminate_outliers':
+            elif method == "eliminate_outliers":
                 # Calcular el rango intercuartílico (IQR) para cada columna numérica
                 Q1 = df.quantile(0.25)
                 Q3 = df.quantile(0.75)
                 IQR = Q3 - Q1
-                
+
                 # Definir límites para considerar outliers
                 lower_bound = Q1 - 1.5 * IQR
                 upper_bound = Q3 + 1.5 * IQR
-                
+
                 # Eliminar filas que contienen outliers en al menos una columna numérica
                 df = df[~((df < lower_bound) | (df > upper_bound)).any(axis=1)]
-                
+
                 rows_changed = original_rows - len(df)  # Calcular filas eliminadas
-               
+
             else:
                 raise ValueError("Invalid cleaning method")
 
             df.to_csv(file_path, index=False)
 
-            return rows_changed 
+            return rows_changed
         except Exception as e:
             return str(e)
 
-    upload_folder = app.config['UPLOAD_FOLDER']
-    cleaning_method = 'remove_missing'
+    # Get the path to the upload folder
+    upload_folder = app.config["UPLOAD_FOLDER"]
 
-    if operation == 'clean':
-        cleaning_method = 'remove_missing'
-    elif operation == 'patch':
-        cleaning_method = 'replace_missing_with_mean'
-    elif operation == 'outliers':
-        cleaning_method = 'eliminate_outliers'
+    # Define the cleaning method ('remove_missing' or 'replace_missing_with_mean')
+    cleaning_method = "remove_missing"  # Change this to the desired method
+
+    if operation == "clean":
+        cleaning_method = "remove_missing"
+    elif operation == "patch":
+        cleaning_method = "replace_missing_with_mean"
+    elif operation == "outliers":
+        cleaning_method = "eliminate_outliers"
 
     total_rows_changed = 0
 
     for filename in os.listdir(upload_folder):
         file_path = os.path.join(upload_folder, filename)
-        if os.path.isfile(file_path) and file_path.endswith('.csv'):
+        if os.path.isfile(file_path) and file_path.endswith(".csv"):
+            # Call the clean_file function to clean the file using the specified method
             rows_changed = clean_file(file_path, cleaning_method)
             total_rows_changed += rows_changed
 
-    response_message = f'Total rows changed: {total_rows_changed} ({operation})'
+    # Create the response message
+    response_message = f"Total rows changed: {total_rows_changed} ({operation})"
 
     print(response_message)
 
-    resp = jsonify({'message': response_message})
+    # Return a response indicating the total number of rows changed and the operation performed
+    resp = jsonify({"message": response_message})
     resp.status_code = 200
     return resp
 
-@app.route('/api/v1/analize', methods=['GET'])
-@cross_origin()
-def analize_data():
-    pass
 
-@app.route('/api/v1/visualize', methods=['GET'])
+@app.route("/api/v1/visualize", methods=["GET"])
 @cross_origin()
 def visualize_data():
-    filename = 'parabola_data.csv'
+    filename = "parabola_data.csv"
     file = f"./static/uploads/{filename}"
     data = []
 
     try:
-        with open(file, 'r') as f:
+        with open(file, "r") as f:
             csv_reader = csv.DictReader(f)
             for row in csv_reader:
                 data.append(row)
     except:
         return jsonify({"error": "CSV file not found"})
-    
+
     return jsonify(data)
 
 
-@app.route('/api/v1/statistics', methods=['GET'])
+@app.route("/api/v1/statistics", methods=["GET"])
 @cross_origin()
 def get_statistics():
     global data_type
     all_stats = {}
 
-    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
-        if filename.endswith('.csv'):
+    for filename in os.listdir(app.config["UPLOAD_FOLDER"]):
+        if filename.endswith(".csv"):
             determine_data_type(filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
             try:
                 df = pd.read_csv(file_path)
                 file_type = data_type.get(filename, "Unknown")
-                stats_json = df.describe(include='all').transpose().to_json(orient="index")
+                stats_json = (
+                    df.describe(include="all").transpose().to_json(orient="index")
+                )
 
                 if file_type == "Linear Model":
                     all_stats[filename] = json.loads(stats_json)
@@ -193,7 +206,10 @@ def get_statistics():
                     cluster_data = {
                         f"Cluster {cluster+1}": {
                             "Count": int(count),
-                            "Centroid": [round(float(val), 2) for val in kmeans.cluster_centers_[cluster]]
+                            "Centroid": [
+                                round(float(val), 2)
+                                for val in kmeans.cluster_centers_[cluster]
+                            ],
                         }
                         for cluster, count in zip(clusters, counts)
                     }
@@ -210,19 +226,19 @@ def get_statistics():
                     a = pol_reg.coef_[2]
                     b = pol_reg.coef_[1]
                     c = pol_reg.intercept_
-                    
+
                     vertex_x = -b / (2 * a)
-                    vertex_y = c - (b**2 / (4*a))
-                    
+                    vertex_y = c - (b**2 / (4 * a))
+
                     stats["Vertex"] = {"x": vertex_x, "y": vertex_y}
                     all_stats[filename] = stats
-                    
+
                     return jsonify(all_stats)
                 elif file_type == "Time Series":
                     all_stats[filename] = json.loads(stats_json)
 
                 else:
-                    response_message = f'Unknown data type {file_type})'
+                    response_message = f"Unknown data type {file_type})"
                     return jsonify({"error": response_message}), 400
 
             except FileNotFoundError:
@@ -233,13 +249,13 @@ def get_statistics():
 
     return jsonify(all_stats)
 
-    
+
 def determine_data_type(filename):
     global data_type
     file_path = f"./static/uploads/{filename}"
-        
+
     if not os.path.exists(file_path):
-        data_type[filename]= "Unknown"
+        data_type[filename] = "Unknown"
         return
 
     data = pd.read_csv(file_path)
@@ -247,7 +263,9 @@ def determine_data_type(filename):
     y = data.iloc[:, -1]
 
     # Linear Regression Check
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
     lin_reg = LinearRegression()
     lin_reg.fit(X_train, y_train)
     predictions = lin_reg.predict(X_test)
@@ -277,25 +295,54 @@ def determine_data_type(filename):
 
     # Time Series Check
     try:
-        X.iloc[:, 0] = pd.to_datetime(X.iloc[:, 0])  # Convert the first column to datetime
+        X.iloc[:, 0] = pd.to_datetime(
+            X.iloc[:, 0]
+        )  # Convert the first column to datetime
         autocorrelation = acf(y, nlags=40, fft=True)
         if autocorrelation[1] > 0.5:
             data_type[filename] = "Time Series"
             return
     except Exception as e:
         print(f"Error in Time Series check: {e}")
-    
+
     data_type[filename] = "Unknown"
-    
 
 
-@app.route('/<path>', methods=['GET'])
+@app.route("/<path>", methods=["GET"])
 @cross_origin()
 def serve_index_html(path):
     return send_from_directory(app.static_folder, "index.html")
 
+
+@app.route("/api/v1/files", methods=["GET"])
+@cross_origin()
+def fetch_files():
+    files = []
+    for file_name in [f for f in os.listdir(UPLOAD_FOLDER) if not f.startswith(".")]:
+        file_path = os.path.join(UPLOAD_FOLDER, file_name)
+
+        if os.path.isfile(file_path):
+            file_size = os.path.getsize(file_path)
+            file_info = {"file_name": file_name, "file_size": file_size}
+            files.append(file_info)
+    resp = jsonify(files)
+    return resp
+
+
+@app.route("/api/v1/delete/<filename>", methods=["DELETE"])
+@cross_origin()
+def delete_file(filename):
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return jsonify(message="File deleted successfully"), 200
+    else:
+        return jsonify(error="File not found"), 404
+
+
 def start():
     app.run()
+
 
 if __name__ == "__main__":
     start()
