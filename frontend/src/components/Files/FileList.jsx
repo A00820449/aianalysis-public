@@ -7,6 +7,7 @@ import {
   filesURL,
   getDeleteFileURL,
 } from "../../config/backendURL";
+import useFetchFiles from "../../hooks/use-fetch-files";
 
 const { Dragger } = Upload;
 
@@ -17,7 +18,7 @@ const props = {
 };
 
 function FileList() {
-  const [files, setFiles] = React.useState([]);
+  const [files, setFiles] = useFetchFiles();
 
   console.log(files);
 
@@ -43,24 +44,6 @@ function FileList() {
   function handleOnDrop(e) {
     console.log("Dropped files", e.dataTransfer.files);
   }
-
-  async function fetchFiles() {
-    const response = await fetch(filesURL, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const json = await response.json();
-    json.forEach((file) => {
-      file.uid = crypto.randomUUID();
-    });
-    setFiles(json);
-  }
-
-  React.useEffect(() => {
-    fetchFiles();
-  }, []);
 
   async function handleDelete(fileName) {
     const url = getDeleteFileURL(fileName);
@@ -101,9 +84,7 @@ function FileList() {
             align="baseline"
             style={{ width: "100%", justifyContent: "space-between" }}
           >
-            <h1 style={{ fontSize: "32px", color: `${blue.primary}` }}>
-              My Files
-            </h1>
+            <h1>My Files</h1>
             <Upload
               {...props}
               showUploadList={false}

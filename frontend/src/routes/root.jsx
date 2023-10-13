@@ -59,7 +59,7 @@ export default function Root() {
           ))}
         </Menu>
       </Sider>
-      <Layout style={{ overflow: "auto" }}>
+      <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
           <Button
             type="text"
@@ -78,6 +78,7 @@ export default function Root() {
             padding: 24,
             minHeight: 280,
             background: colorBgContainer,
+            overflow: "auto",
           }}
         >
           <Outlet />
