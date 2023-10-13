@@ -1,87 +1,124 @@
-import React, { useState } from 'react';
-import styled from "styled-components";
+import React, { useState } from "react";
 import axios from "axios";
 import { cleanDataURL } from "../config/backendURL";
-
-const Wrapper = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const HeaderWrapper = styled.div`
-  padding-bottom: 2.5rem;
-`;
-
-const Title = styled.h1`
-  font-weight: 700;
-  font-size: 3rem;
-  line-height: 1;
-`;
-
-const Description = styled.p`
-  font-weight: 500;
-  font-size: 1.2rem;
-  line-height: 1.5;
-  margin-top: 1rem;
-`;
-
-const Dropdown = styled.select`
-  padding: 0.2rem 0.5rem 
-  width: 150px 
-  font-size: 0.9rem; 
-  background-color: black;
-  color: white; 
-`;
+import { Steps, Button } from "antd";
+import FileSelect from "../components/DataPreprocessing/FileSelect";
+import OperationSelect from "../components/DataPreprocessing/OperationSelect";
 
 const DataPreprocessing = () => {
-  const [message, setMessage] = useState("");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [selectedOperation, setSelectedOperation] = useState("clean");
-  const apiUrl = cleanDataURL;
+  const [message, setMessage] = useState("");
 
+  const steps = [
+    {
+      title: "Select File",
+      content: (
+        <FileSelect
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
+        />
+      ),
+    },
+    {
+      title: "Choose an Operation",
+      content: (
+        <OperationSelect
+          selectedFile={selectedFile}
+          selectedOperation={selectedOperation}
+          setSelectedOperation={setSelectedOperation}
+        />
+      ),
+    },
+    {
+      title: "Results",
+      content: "Last-content",
+    },
+  ];
+
+  const next = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
+  const prev = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  const items = steps.map((item) => ({ key: item.title, title: item.title }));
+
+  const apiUrl = cleanDataURL;
 
   const handleOperationChange = (event) => {
     setSelectedOperation(event.target.value);
   };
 
   const handleOperationSubmit = () => {
-    axios.get(apiUrl, { params: { operation: selectedOperation } })
+    axios
+      .get(apiUrl, { params: { operation: selectedOperation } })
       .then((response) => {
         setMessage(response.data.message);
         console.log(response.data.message);
       })
       .catch((error) => {
-        console.error('Error Processing Data:', error);
+        console.error("Error Processing Data:", error);
       });
   };
 
+  const [dotPosition, setDotPosition] = useState("top");
+
+  const handlePositionChange = ({ target: { value } }) => {
+    setDotPosition(value);
+  };
+
   return (
-    <Wrapper>
-      <HeaderWrapper>
-        <Title>Data Preprocessing</Title>
-        <Description>Select file</Description>
-        
-      </HeaderWrapper>
+    // <Wrapper>
+    //   <HeaderWrapper>
+    //     <h1 style={{ fontSize: "32px", color: `${blue.primary}` }}>
+    //       Data Preprocessing
+    //     </h1>
+    //     <Description>Select file</Description>
+    //   </HeaderWrapper>
 
-      {/* Dropdown */}
-      <Dropdown value={selectedOperation} onChange={handleOperationChange}>
-        <option value="clean">Clean</option>
-        <option value="patch">Patch</option>
-        <option value="outliers">Eliminate outliers</option>
-        {/* Add more options */}
-      </Dropdown>
+    //   {/* Dropdown */}
+    //   <Dropdown value={selectedOperation} onChange={handleOperationChange}>
+    //     <option value="clean">Clean</option>
+    //     <option value="patch">Patch</option>
+    //     <option value="outliers">Eliminate outliers</option>
+    //     {/* Add more options */}
+    //   </Dropdown>
 
-      
-      <button onClick={handleOperationSubmit}>Submit</button>
+    //   <button onClick={handleOperationSubmit}>Submit</button>
 
-      
-      <div>
-        <strong>Changes:</strong> {message}
+    //   <div>
+    //     <strong>Changes:</strong> {message}
+    //   </div>
+    // </Wrapper>
+    <>
+      <Steps current={currentStep} items={items} />
+      <div style={{ marginTop: "24px" }}>{steps[currentStep].content}</div>
+      <div style={{ marginTop: 24 }}>
+        {currentStep > 0 && (
+          <Button style={{ margin: "0 8px" }} onClick={() => prev()}>
+            Previous
+          </Button>
+        )}
+        {currentStep < steps.length - 1 && (
+          <Button type="primary" onClick={() => next()}>
+            Next
+          </Button>
+        )}
+        {currentStep === steps.length - 1 && (
+          <Button
+            type="primary"
+            onClick={() => message.success("Processing complete!")}
+          >
+            Done
+          </Button>
+        )}
       </div>
-    </Wrapper>
+    </>
   );
 };
 
 export default DataPreprocessing;
-
