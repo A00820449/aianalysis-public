@@ -1,98 +1,68 @@
-import styled from "styled-components";
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
+import { Card, Typography, Table } from 'antd';
 import { statisticsURL } from "../config/backendURL";
+const { Title, Text } = Typography;
 
 export default function StatisticalAnalysis() {
-  const [stats, setStats] = useState({});
+  const [allStats, setAllStats] = useState({});
 
   useEffect(() => {
     const apiUrl = statisticsURL;
-    
     axios.get(apiUrl)
       .then((response) => {
-        setStats(response.data);
+        console.log("Received data:", response.data); // Add this line
+        setAllStats(response.data);
       })
       .catch((error) => {
         console.error('Error fetching statistics:', error);
       });
   }, []);
+  
 
   return (
-    <Wrapper>
-      <HeaderWrapper>
-        <Title>Statistics</Title>
-        <Description>Basic statistical values for CSV data</Description>
-      </HeaderWrapper>
-      <StatsContainer>
-        {Object.entries(stats).map(([column, values]) => (
-          <StatCard key={column}>
-            <ColumnName>{column}</ColumnName>
-            {Object.entries(values).map(([key, value]) => (
-              <StatRow key={key}>
-                <StatKey>{key}</StatKey>: <StatValue>{value}</StatValue>
-              </StatRow>
-            ))}
-          </StatCard>
-        ))}
-      </StatsContainer>
-    </Wrapper>
+    <div style={{ padding: '24px', backgroundColor: '#0d0f11', minHeight: '100vh' }}>
+      <Title style={{ color: 'white' }} level={1}>Statistics</Title>
+      <Text style={{ color: 'white', marginBottom: '2rem' }}>Basic statistical values for CSV data</Text>
+
+      {Object.entries(allStats).map(([filename, stats]) => (
+        <Card key={filename} title={filename} style={{ marginBottom: '24px', backgroundColor: '#0d0f11', color: 'white' }}>
+          {typeof stats === 'object' && !Array.isArray(stats) ? (
+            Object.entries(stats).map(([column, values]) => {
+              const tableData = Object.entries(values).map(([key, value]) => ({ key, value }));
+              return (
+                <div key={column}>
+                  <Title style={{ color: '#ffffff' }} level={3}>{column}</Title>
+
+                  <Table
+                    pagination={false}
+                    style={{ backgroundColor: '#292929' }}
+                    rowClassName={()=>'row-style'}
+                    dataSource={tableData}
+                    columns={[
+                      {
+                        title: 'Stat',
+                        dataIndex: 'key',
+                        key: 'key',
+                        render: text => <Text style={{ color: '#ffffff' }}>{text}</Text>
+                      },
+                      {
+                        title: 'Value',
+                        dataIndex: 'value',
+                        key: 'value',
+                        render: text => <Text style={{ color: '#ffffff' }}>{text}</Text>
+                      }
+                    ]}
+                  />
+                </div>
+              );
+            })
+          ) : (
+            <Text style={{ color: '#ffffff' }}>{stats}</Text>
+          )}
+        </Card>
+      ))}
+    </div>
   );
 }
 
-const Wrapper = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const HeaderWrapper = styled.div`
-  padding-bottom: 2.5rem;
-`;
-
-const Title = styled.h1`
-  font-weight: 700;
-  font-size: 3rem;
-  line-height: 1;
-`;
-
-const Description = styled.p`
-  font-weight: 500;
-  font-size: 1.2rem;
-  line-height: 1.5;
-  margin-top: 1rem;
-`;
-
-const StatsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-`;
-
-const StatCard = styled.div`
-  border: 1px solid #e1e4e8;
-  padding: 20px;
-  border-radius: 5px;
-  width: 300px;
-`;
-
-const ColumnName = styled.h2`
-  font-weight: 600;
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-`;
-
-const StatRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-`;
-
-const StatKey = styled.span`
-  font-weight: 500;
-`;
-
-const StatValue = styled.span`
-  font-weight: 400;
-`;

@@ -1,16 +1,26 @@
 import styled from "styled-components";
-import React, { useEffect, useState } from 'react';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import React, { useEffect, useState } from "react";
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import axios from "axios";
 import { visualizeURL } from "../config/backendURL";
+import { blue } from "@ant-design/colors";
 
 export default function Visualizations() {
   const [data, setData] = useState([]);
-  
+
   useEffect(() => {
-    const apiUrl = visualizeURL
-  
-    axios.get(apiUrl)
+    const apiUrl = visualizeURL;
+
+    axios
+      .get(apiUrl)
       .then((response) => {
         setData((prevData) => {
           console.log(prevData);
@@ -18,30 +28,32 @@ export default function Visualizations() {
         });
       })
       .catch((error) => {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       });
   }, []);
 
   return (
     <Wrapper>
       <HeaderWrapper>
-        <Title>Visualizations</Title>
+        <h1 style={{ fontSize: "32px", color: `${blue.primary}` }}>
+          Visualizations
+        </h1>
         <Description>Select file and chart type</Description>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart
-            margin={{
-                top: 20,
-                right: 20,
-                bottom: 20,
-                left: 20,
-            }}
+          margin={{
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20,
+          }}
         >
-            <CartesianGrid />
-            <XAxis type="number" dataKey="x" name="X" />
-            <YAxis type="number" dataKey="y" name="Y" />
-            <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-            <Scatter name="example" data={data} fill="#8884d8" />
+          <CartesianGrid />
+          <XAxis type="number" dataKey="x" name="X" />
+          <YAxis type="number" dataKey="y" name="Y" />
+          <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+          <Scatter name="example" data={data} fill="#8884d8" />
         </ScatterChart>
       </ResponsiveContainer>
     </Wrapper>

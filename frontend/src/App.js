@@ -1,11 +1,8 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
-
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "antd/dist/reset.css";
 import Root from "./routes/root";
 import ErrorPage from "./routes/error-page";
-import FileUpload from "./routes/file-upload";
+import FileUpload from "./routes/files";
 import StatisticalAnalysis from "./routes/statistical-analysis";
 import Visualizations from "./routes/visualizations";
 import DataPreprocessing from "./routes/data-preprocessing";
@@ -17,7 +14,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "upload",
+        path: "files",
         element: <FileUpload />,
       },
       {
@@ -32,14 +29,12 @@ const router = createBrowserRouter([
         path: "visualizations",
         element: <Visualizations />,
       },
-    ]
+    ],
   },
 ]);
 
 function App() {
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
