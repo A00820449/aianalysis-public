@@ -6,6 +6,7 @@ import FileUpload from "./routes/files";
 import StatisticalAnalysis from "./routes/statistical-analysis";
 import Visualizations from "./routes/visualizations";
 import DataPreprocessing from "./routes/data-preprocessing";
+import { QueryClient, QueryClientProvider } from "react-query"
 
 const router = createBrowserRouter([
   {
@@ -33,8 +34,14 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient()
+
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+  <QueryClientProvider client={queryClient}>
+    <RouterProvider router={router} />
+  </QueryClientProvider>
+  )
 }
 
 export default App;
