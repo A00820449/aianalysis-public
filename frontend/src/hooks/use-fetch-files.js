@@ -1,28 +1,7 @@
 import React from "react";
 import { filesURL, getDeleteFileURL } from "../config/backendURL";
 import { useMutation, useQuery } from "react-query";
-
-const jsonFetcher = url => fetch(url, {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json",
-  },
-}).then(r => r.json())
-
-const jsonFetcherDelete = (url) => fetch(url, {
-  method: "DELETE",
-  headers: {
-    "Content-Type": "application/json",
-  },
-}).then(r => r.json())
-
-const jsonFetcherPost = (url, data) => fetch(url, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(data)
-}).then(r => r.json())
+import { jsonFetcherGet, jsonFetcherDelete } from "./common"
 
 function old_useFetchFiles() {
   const [files, setFiles] = React.useState([]);
@@ -48,7 +27,7 @@ function old_useFetchFiles() {
   return [files, setFiles];
 }
 
-const fetchFiles = () => jsonFetcher(filesURL)
+const fetchFiles = () => jsonFetcherGet(filesURL)
 export function useFetchFiles() {
   const {data, isSuccess, refetch} = useQuery({queryKey: "files", queryFn: fetchFiles})
 
@@ -65,7 +44,7 @@ export function useFetchFiles() {
 }
 
 const deleteFile = (filename) => jsonFetcherDelete(getDeleteFileURL(filename))
-export function useDeleteFile(filename) {
+export function useDeleteFile() {
   const { mutate, mutateAsync, reset } = useMutation({mutationFn: deleteFile})
 
   return { deleteFile: mutate, deleteFileAsync: mutateAsync, reset }
