@@ -7,7 +7,7 @@ import {
   filesURL,
   getDeleteFileURL,
 } from "../../config/backendURL";
-import useFetchFiles from "../../hooks/use-fetch-files";
+import useFetchFiles, { useDeleteFile } from "../../hooks/use-fetch-files";
 
 const { Dragger } = Upload;
 
@@ -18,7 +18,8 @@ const props = {
 };
 
 function FileList() {
-  const [files, setFiles] = useFetchFiles();
+  const { files, refetch } = useFetchFiles();
+  const { deleteFile } = useDeleteFile();
 
   console.log(files);
 
@@ -29,13 +30,16 @@ function FileList() {
       console.log(info.file, info.fileList);
     }
     if (status === "done") {
-      const newFile = {
+      /*const newFile = {
         file_name: info.file.name,
         file_size: info.file.size,
         uid: crypto.randomUUID(),
       };
+      
+      setFiles([...files, newFile]);*/
+      
       message.success(`${info.file.name} file uploaded successfully.`);
-      setFiles([...files, newFile]);
+      refetch()
     } else if (status === "error") {
       message.error(`${JSON.stringify(info.file.response)}`);
     }
@@ -46,7 +50,7 @@ function FileList() {
   }
 
   async function handleDelete(fileName) {
-    const url = getDeleteFileURL(fileName);
+    /*const url = getDeleteFileURL(fileName);
     const response = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -55,7 +59,10 @@ function FileList() {
     });
     const json = await response.json();
     const nextFiles = files.filter((file) => file.file_name !== fileName);
-    setFiles(nextFiles);
+    setFiles(nextFiles);*/
+    
+    deleteFile(fileName)
+    refetch()
   }
 
   return (
