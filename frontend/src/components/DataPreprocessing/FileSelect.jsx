@@ -4,7 +4,7 @@ import useFetchFiles from "../../hooks/use-fetch-files";
 import styled from "styled-components";
 
 function FileSelect({ selectedFile, setSelectedFile }) {
-  const [files, setFiles] = useFetchFiles();
+  const { files } = useFetchFiles();
 
   return (
     <>
