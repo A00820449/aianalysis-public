@@ -20,9 +20,9 @@ function FileSelect({ selectedFile, setSelectedFile }) {
                 id={file.uid}
                 value={file.file_name}
                 checked={selectedFile === file.file_name}
-                onChange={(event) => setSelectedFile(event.target.value)}
+                readOnly
               ></FileItem>
-              <label htmlFor={file.uid}>
+              <label htmlFor={file.uid} onClick={() => setSelectedFile(file.file_name)}>
                 <Card hoverable>{file.file_name}</Card>
               </label>
             </React.Fragment>
