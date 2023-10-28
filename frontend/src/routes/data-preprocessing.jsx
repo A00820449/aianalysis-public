@@ -4,12 +4,14 @@ import { cleanDataURL } from "../config/backendURL";
 import { Steps, Button } from "antd";
 import FileSelect from "../components/DataPreprocessing/FileSelect";
 import OperationSelect from "../components/DataPreprocessing/OperationSelect";
+import { useFileOperation } from "../hooks/file-operations";
 
 const DataPreprocessing = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedOperation, setSelectedOperation] = useState("clean");
   const [message, setMessage] = useState("");
+  const { doOperationFileAsync } = useFileOperation()
 
   const steps = [
     {
@@ -33,7 +35,10 @@ const DataPreprocessing = () => {
     },
     {
       title: "Results",
-      content: "Last-content",
+      content:<>
+                <div>Filename: <code>{selectedFile ?? "none"}</code></div>
+                <div>Operation: <code>{selectedOperation}</code></div>
+              </>,
     },
   ];
 
@@ -53,7 +58,8 @@ const DataPreprocessing = () => {
     setSelectedOperation(event.target.value);
   };
 
-  const handleOperationSubmit = () => {
+
+  const _handleOperationSubmit = () => {
     axios
       .get(apiUrl, { params: { operation: selectedOperation } })
       .then((response) => {
@@ -70,6 +76,17 @@ const DataPreprocessing = () => {
   const handlePositionChange = ({ target: { value } }) => {
     setDotPosition(value);
   };
+
+
+  const handleOperationSubmit = async () => {
+    try {
+      const res = await doOperationFileAsync({filename: selectedFile, operation: selectedOperation})
+      alert(`server response: ${JSON.stringify(res)}`)
+    }
+    catch(e) {
+      alert(`error: ${e}`)
+    }
+  }
 
   return (
     // <Wrapper>
@@ -111,7 +128,7 @@ const DataPreprocessing = () => {
         {currentStep === steps.length - 1 && (
           <Button
             type="primary"
-            onClick={() => message.success("Processing complete!")}
+            onClick={handleOperationSubmit}
           >
             Done
           </Button>

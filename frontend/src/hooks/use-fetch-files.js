@@ -3,7 +3,7 @@ import { filesURL, getDeleteFileURL } from "../config/backendURL";
 import { useMutation, useQuery } from "react-query";
 import { jsonFetcherGet, jsonFetcherDelete } from "./common"
 
-function old_useFetchFiles() {
+function useFetchFiles_old() {
   const [files, setFiles] = React.useState([]);
 
   React.useEffect(() => {
