@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import { visualizeURL } from "../config/backendURL";
 import { blue } from "@ant-design/colors";
+import FileSelectDropdown from "../components/FIleSelectDropdown";
 
 export default function Visualizations() {
   const [data, setData] = useState([]);
@@ -39,6 +40,7 @@ export default function Visualizations() {
           Visualizations
         </h1>
         <Description>Select file and chart type</Description>
+        <FileSelectDropdown/>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart

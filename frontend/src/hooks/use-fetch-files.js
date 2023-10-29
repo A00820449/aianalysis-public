@@ -27,17 +27,21 @@ function useFetchFiles_old() {
   return [files, setFiles];
 }
 
+/**
+ * @typedef {{file_name: string, file_size: number}[]} FetchFilesPayload
+ * @returns {Promise<FetchFilesPayload>}
+ */
 const fetchFiles = () => jsonFetcherGet(filesURL)
 export function useFetchFiles() {
   const {data, isSuccess, refetch} = useQuery({queryKey: "files", queryFn: fetchFiles})
 
-  let files = null
+  /**
+   * @type {(FetchFilesPayload[number] & {uuid: string})[]}
+   */
+  let files = []
   if (isSuccess) { 
     data.forEach(f => f["uuid"] = crypto.randomUUID()) 
     files = data
-  }
-  else {
-    files = []
   }
 
   return {files, refetch}
