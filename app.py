@@ -164,7 +164,7 @@ def clean_data():
 @app.route("/api/v1/visualize", methods=["GET"])
 @cross_origin()
 def visualize_data():
-    filename = "parabola_data.csv"
+    filename = request.args.get("filename", "")
     file = f"./static/uploads/{filename}"
     data = []
 

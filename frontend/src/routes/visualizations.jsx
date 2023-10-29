@@ -13,11 +13,13 @@ import axios from "axios";
 import { visualizeURL } from "../config/backendURL";
 import { blue } from "@ant-design/colors";
 import FileSelectDropdown from "../components/FIleSelectDropdown";
+import { useFetchVisualization } from "../hooks/use-fetch-visualization";
 
 export default function Visualizations() {
-  const [data, setData] = useState([]);
+  const [filename, setFilename] = useState("")
+  const { data, error } = useFetchVisualization(filename);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const apiUrl = visualizeURL;
 
     axios
@@ -31,7 +33,7 @@ export default function Visualizations() {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);
+  },[]);*/
 
   return (
     <Wrapper>
@@ -40,7 +42,7 @@ export default function Visualizations() {
           Visualizations
         </h1>
         <Description>Select file and chart type</Description>
-        <FileSelectDropdown/>
+        <FileSelectDropdown onChange={(v) => {setFilename(v)}}/>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart
