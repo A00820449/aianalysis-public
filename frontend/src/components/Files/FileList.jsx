@@ -62,7 +62,6 @@ function FileList() {
     setFiles(nextFiles);*/
     
     deleteFile(fileName)
-    refetch()
   }
 
   return (

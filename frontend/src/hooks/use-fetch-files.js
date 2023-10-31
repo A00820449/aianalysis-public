@@ -1,6 +1,6 @@
 import React from "react";
 import { filesURL, getDeleteFileURL } from "../config/backendURL";
-import { useMutation, useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { jsonFetcherGet, jsonFetcherDelete } from "./common"
 
 function useFetchFiles_old() {
@@ -33,7 +33,7 @@ function useFetchFiles_old() {
  */
 const fetchFiles = () => jsonFetcherGet(filesURL)
 export function useFetchFiles() {
-  const {data, isSuccess, refetch} = useQuery({queryKey: "files", queryFn: fetchFiles})
+  const {data, isSuccess, refetch} = useQuery({queryKey: ["files"], queryFn: fetchFiles})
 
   /**
    * @type {(FetchFilesPayload[number] & {uuid: string})[]}
@@ -49,7 +49,8 @@ export function useFetchFiles() {
 
 const deleteFile = (filename) => jsonFetcherDelete(getDeleteFileURL(filename))
 export function useDeleteFile() {
-  const { mutate, mutateAsync, reset } = useMutation({mutationFn: deleteFile})
+  const queryClient = useQueryClient()
+  const { mutate, mutateAsync, reset } = useMutation({mutationFn: deleteFile, onSuccess: () => queryClient.invalidateQueries({queryKey: ["files"]})})
 
   return { deleteFile: mutate, deleteFileAsync: mutateAsync, reset }
 }
