@@ -6,7 +6,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import PolynomialFeatures, MinMaxScaler, StandardScaler
 from sklearn.pipeline import make_pipeline
 from statsmodels.tsa.stattools import acf
 import numpy as np
@@ -82,43 +82,48 @@ def upload_file():
 @app.route("/api/v1/analyze", methods=["GET"])
 @cross_origin()
 def clean_data():
-    # Get the operation parameter from the request
     operation = request.args.get("operation")
+    FileName = request.args.get("filename")
 
-    # Define a function to clean the data based on the specified method
     def clean_file(file_path, method):
         try:
             df = pd.read_csv(file_path)
 
-            original_rows = len(df)  # Get the original number of rows
+            original_rows = len(df)  
 
-            if method == "remove_missing":
-                # Remove rows with missing values in any column
+            if method == "clean":
                 df.dropna(inplace=True)
-                rows_changed = original_rows - len(df)  # Calculate rows dropped
-            elif method == "replace_missing_with_mean":
-                # Create a copy of the DataFrame for comparison
+                rows_changed = original_rows - len(df)  
+            elif method == "patch":
                 original_df = df.copy()
-
                 df.fillna(df.mean(), inplace=True)
-
                 rows_changed = (original_df != df).any(axis=1).sum()
-
-            elif method == "eliminate_outliers":
-                # Calcular el rango intercuartílico (IQR) para cada columna numérica
+            elif method == "outliers":
                 Q1 = df.quantile(0.25)
                 Q3 = df.quantile(0.75)
                 IQR = Q3 - Q1
 
-                # Definir límites para considerar outliers
                 lower_bound = Q1 - 1.5 * IQR
                 upper_bound = Q3 + 1.5 * IQR
 
-                # Eliminar filas que contienen outliers en al menos una columna numérica
                 df = df[~((df < lower_bound) | (df > upper_bound)).any(axis=1)]
 
-                rows_changed = original_rows - len(df)  # Calcular filas eliminadas
-
+                rows_changed = original_rows - len(df) 
+            elif method == "scale":
+                # Scale the data to be between 0 and 1
+                scaler = MinMaxScaler()
+                df[df.columns] = scaler.fit_transform(df)
+                rows_changed = original_rows
+            elif method == "normalize":
+                # Normalize the data to be between -1 and 1
+                scaler = StandardScaler()
+                df[df.columns] = scaler.fit_transform(df)
+                rows_changed = original_rows
+            elif method == "standardize":
+                # Standardize the data to have a mean of 0 and standard deviation of 1
+                scaler = StandardScaler()
+                df[df.columns] = scaler.fit_transform(df)
+                rows_changed = original_rows
             else:
                 raise ValueError("Invalid cleaning method")
 
@@ -128,34 +133,21 @@ def clean_data():
         except Exception as e:
             return str(e)
 
-    # Get the path to the upload folder
     upload_folder = app.config["UPLOAD_FOLDER"]
-
-    # Define the cleaning method ('remove_missing' or 'replace_missing_with_mean')
-    cleaning_method = "remove_missing"  # Change this to the desired method
-
-    if operation == "clean":
-        cleaning_method = "remove_missing"
-    elif operation == "patch":
-        cleaning_method = "replace_missing_with_mean"
-    elif operation == "outliers":
-        cleaning_method = "eliminate_outliers"
 
     total_rows_changed = 0
 
     for filename in os.listdir(upload_folder):
-        file_path = os.path.join(upload_folder, filename)
-        if os.path.isfile(file_path) and file_path.endswith(".csv"):
-            # Call the clean_file function to clean the file using the specified method
-            rows_changed = clean_file(file_path, cleaning_method)
-            total_rows_changed += rows_changed
+        if filename == FileName:  
+            file_path = os.path.join(upload_folder, filename)
+            if os.path.isfile(file_path) and file_path.endswith(".csv"):
+                rows_changed = clean_file(file_path, operation)
+                total_rows_changed += rows_changed
 
-    # Create the response message
-    response_message = f"Total rows changed: {total_rows_changed} ({operation})"
 
+    response_message = f"Total rows changed: {total_rows_changed} ({operation} in {FileName})"
     print(response_message)
 
-    # Return a response indicating the total number of rows changed and the operation performed
     resp = jsonify({"message": response_message})
     resp.status_code = 200
     return resp
