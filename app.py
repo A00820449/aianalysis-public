@@ -124,6 +124,32 @@ def clean_data():
                 scaler = StandardScaler()
                 df[df.columns] = scaler.fit_transform(df)
                 rows_changed = original_rows
+            elif method == "pca":
+                from sklearn.decomposition import PCA
+                # Retain enough components to explain 95% of the variance
+                pca = PCA(0.95)
+                transformed_data = pca.fit_transform(df)
+                # Convert the transformed data back to a dataframe
+                df = pd.DataFrame(transformed_data, columns=[f'PC{i+1}' for i in range(transformed_data.shape[1])])
+                rows_changed = original_rows
+                
+            elif method == "bin":
+                # Binning the 'x' column
+                df['x_binned'] = pd.cut(df['x'], bins=10, labels=False)
+                            
+                # Binning the 'y' column
+                df['y_binned'] = pd.cut(df['y'], bins=10, labels=False)
+                            
+                rows_changed = original_rows
+                
+            elif method == "discretize":
+                # Binning the 'x' column into equal frequency bins
+                df['x_binned'] = pd.qcut(df['x'], q=10, labels=False)
+                            
+                # Binning the 'y' column into equal frequency bins
+                df['y_binned'] = pd.qcut(df['y'], q=10, labels=False)
+                            
+                rows_changed = original_rows
             else:
                 raise ValueError("Invalid cleaning method")
 
