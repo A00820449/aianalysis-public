@@ -201,71 +201,75 @@ def visualize_data():
 @cross_origin()
 def get_statistics():
     global data_type
-    all_stats = {}
+    output = {}
 
-    for filename in os.listdir(app.config["UPLOAD_FOLDER"]):
-        if filename.endswith(".csv"):
-            determine_data_type(filename)
-            file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            try:
-                df = pd.read_csv(file_path)
-                file_type = data_type.get(filename, "Unknown")
-                stats_json = (
-                    df.describe(include="all").transpose().to_json(orient="index")
-                )
+    filename = request.args.get("filename", None)
+    
+    if filename is None:
+        return jsonify({"error": "filename missing"}), 404
+    
+    if filename.endswith(".csv"):
+        determine_data_type(filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        try:
+            df = pd.read_csv(file_path)
+            file_type = data_type.get(filename, "Unknown")
+            stats_json = (
+                df.describe(include="all").transpose().to_json(orient="index")
+            )
 
-                if file_type == "Linear Model":
-                    all_stats[filename] = json.loads(stats_json)
+            if file_type == "Linear Model":
+                output = json.loads(stats_json)
 
-                elif file_type == "Cluster":
-                    kmeans = KMeans(n_clusters=2)
-                    kmeans.fit(df)
-                    clusters, counts = np.unique(kmeans.labels_, return_counts=True)
-                    cluster_data = {
-                        f"Cluster {cluster+1}": {
-                            "Count": int(count),
-                            "Centroid": [
-                                round(float(val), 2)
-                                for val in kmeans.cluster_centers_[cluster]
-                            ],
-                        }
-                        for cluster, count in zip(clusters, counts)
+            elif file_type == "Cluster":
+                kmeans = KMeans(n_clusters=2)
+                kmeans.fit(df)
+                clusters, counts = np.unique(kmeans.labels_, return_counts=True)
+                cluster_data = {
+                    f"Cluster {cluster+1}": {
+                        "Count": int(count),
+                        "Centroid": [
+                            round(float(val), 2)
+                            for val in kmeans.cluster_centers_[cluster]
+                        ],
                     }
-                    all_stats[filename] = cluster_data
+                    for cluster, count in zip(clusters, counts)
+                }
+                output = cluster_data
 
-                elif file_type == "Parabola":
-                    stats = json.loads(stats_json)
-                    X = df.iloc[:, :-1].values
-                    y = df.iloc[:, -1].values
-                    poly_reg = PolynomialFeatures(degree=2)
-                    X_poly = poly_reg.fit_transform(X)
-                    pol_reg = LinearRegression()
-                    pol_reg.fit(X_poly, y)
-                    a = pol_reg.coef_[2]
-                    b = pol_reg.coef_[1]
-                    c = pol_reg.intercept_
+            elif file_type == "Parabola":
+                stats = json.loads(stats_json)
+                X = df.iloc[:, :-1].values
+                y = df.iloc[:, -1].values
+                poly_reg = PolynomialFeatures(degree=2)
+                X_poly = poly_reg.fit_transform(X)
+                pol_reg = LinearRegression()
+                pol_reg.fit(X_poly, y)
+                a = pol_reg.coef_[2]
+                b = pol_reg.coef_[1]
+                c = pol_reg.intercept_
 
-                    vertex_x = -b / (2 * a)
-                    vertex_y = c - (b**2 / (4 * a))
+                vertex_x = -b / (2 * a)
+                vertex_y = c - (b**2 / (4 * a))
 
-                    stats["Vertex"] = {"x": vertex_x, "y": vertex_y}
-                    all_stats[filename] = stats
+                stats["Vertex"] = {"x": vertex_x, "y": vertex_y}
+                output = stats
 
-                    return jsonify(all_stats)
-                elif file_type == "Time Series":
-                    all_stats[filename] = json.loads(stats_json)
+                return jsonify(output)
+            elif file_type == "Time Series":
+                output = json.loads(stats_json)
 
-                else:
-                    response_message = f"Unknown data type {file_type})"
-                    return jsonify({"error": response_message}), 400
+            else:
+                response_message = f"Unknown data type {file_type})"
+                return jsonify({"error": response_message}), 400
 
-            except FileNotFoundError:
-                return jsonify({"error": f"{filename} not found"}), 404
-            except Exception as e:
-                print(e)
-                return jsonify({"error": str(e)}), 500
+        except FileNotFoundError:
+            return jsonify({"error": f"{filename} not found"}), 404
+        except Exception as e:
+            print(e)
+            return jsonify({"error": str(e)}), 500
 
-    return jsonify(all_stats)
+    return jsonify(output)
 
 
 def determine_data_type(filename):
