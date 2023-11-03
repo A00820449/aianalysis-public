@@ -18,6 +18,12 @@ export const cleanDataURL = baseURL.toString();
 baseURL.pathname = "/api/v1/files";
 export const filesURL = baseURL.toString();
 
+baseURL.pathname = "/api/v1/export/pdf";
+export const exportPDF = baseURL.toString();
+
+baseURL.pathname = "/api/v1/export/csv";
+export const exportCSV = baseURL.toString();
+
 export function getDeleteFileURL(fileName) {
   baseURL.pathname = `/api/v1/delete/${fileName}`;
   return baseURL.toString();

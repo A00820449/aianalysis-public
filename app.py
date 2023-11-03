@@ -1,4 +1,4 @@
-from flask import Flask, json, request, jsonify
+from flask import Flask, json, request, jsonify, send_file
 from flask.helpers import send_from_directory
 from flask_cors import CORS, cross_origin
 from sklearn.model_selection import train_test_split
@@ -9,6 +9,8 @@ from sklearn.metrics import silhouette_samples
 from sklearn.preprocessing import PolynomialFeatures, MinMaxScaler, StandardScaler
 from sklearn.pipeline import make_pipeline
 from statsmodels.tsa.stattools import acf
+import matplotlib.backends.backend_pdf as pdf_backend
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 from werkzeug.utils import secure_filename
@@ -191,6 +193,7 @@ def visualize_data():
             csv_reader = csv.DictReader(f)
             for row in csv_reader:
                 data.append(row)
+        return jsonify(data)
     except:
         return jsonify({"error": "CSV file not found"})
 
@@ -360,6 +363,92 @@ def delete_file(filename):
         return jsonify(message="File deleted successfully"), 200
     else:
         return jsonify(error="File not found"), 404
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+def export_data_to_pdf(data, filename, chart_type):
+    pdf_pages = pdf_backend.PdfPages(filename)
+
+    if chart_type == "scatter":
+        plt.figure()
+        x_values = [float(entry['x']) for entry in data]
+        y_values = [float(entry['y']) for entry in data]
+        plt.scatter(x_values, y_values)
+        plt.title("Scatter Plot")
+        pdf_pages.savefig()
+
+    elif chart_type == "table":
+        plt.figure()
+        table_data = [list(data[0].keys())] + [[entry[key] for key in entry] for entry in data]
+        table = plt.table(cellText=table_data, loc='center')
+        pdf_pages.savefig()
+
+    pdf_pages.close()
+
+
+@app.route("/api/v1/export/pdf", methods=["GET"])
+@cross_origin()
+def export_to_pdf():
+    filename = request.args.get("filename")
+    chart_type = "scatter"
+    pdf_filename = "exported_data.pdf"
+
+    if os.path.exists(pdf_filename):
+        os.remove(pdf_filename)
+
+    data_response = visualize_data()  
+    if data_response.status_code != 200:
+        return data_response  
+
+    try:
+        response_data  = data_response.json 
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+    export_data_to_pdf(response_data, pdf_filename, chart_type)
+    return send_file(
+        pdf_filename,
+        mimetype='application/pdf',
+        download_name=pdf_filename,
+        as_attachment=True
+    )
+
+def export_statistics_to_csv(filename, stats):
+    with open(filename, "w") as f:
+        for section_name, section_data in stats.items():
+            f.write(section_name + "\n")
+            f.write("Stat,Value\n")
+            for stat, value in section_data.items():
+                f.write(f"{stat},{value}\n")
+
+@app.route("/api/v1/export/csv", methods=["GET"])
+@cross_origin()
+def export_to_csv():
+    filename = request.args.get("filename")
+    stats_response = get_statistics()
+
+    if stats_response.status_code != 200:
+        return stats_response
+
+    try:
+        stats_data = stats_response.json
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+    filenameDestination = "exported_statistics.csv"
+    export_statistics_to_csv(filenameDestination, stats_data)
+
+    return send_file(
+        filenameDestination,
+        mimetype='text/csv',
+        download_name=filenameDestination,
+        as_attachment=True
+    )
+
+
+
 
 
 def start():

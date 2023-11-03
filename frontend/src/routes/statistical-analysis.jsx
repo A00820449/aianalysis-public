@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { Card, Typography, Table } from 'antd';
 import FileSelectDropdown from '../components/FIleSelectDropdown';
-import { statisticsURL } from "../config/backendURL";
+import { exportCSV, exportPDF, statisticsURL } from "../config/backendURL";
 import { useFetchStats } from "../hooks/use-fetch-stats"
 const { Title, Text } = Typography;
 
@@ -29,6 +29,24 @@ export default function StatisticalAnalysis() {
       <Text style={{ color: 'black', marginBottom: '2rem' }}>Select a file</Text>
       <div><FileSelectDropdown onChange={(v) => setFilename(v)}/></div>
       <Card key={filename} title={filename} style={{ marginBottom: '24px', backgroundColor: 'white', color: 'white' }}>
+      {filename && (
+        <>
+          <a
+            href={`${exportPDF}?filename=${filename}`}
+            download="exported_data.pdf"
+            style={{ marginRight: '20px' }}
+          >
+            Download PDF
+          </a>
+          <span className="space-between"></span>
+          <a
+            href={`${exportCSV}?filename=${filename}`}
+            download="exported_statistics.csv"
+          >
+            Download CSV
+          </a>
+        </>
+      )}
       {Object.entries(stats).map(([column, values]) => {
         const tableData = Object.entries(values).map(([key, value]) => ({ key, value }));
         return <div key={column}>
