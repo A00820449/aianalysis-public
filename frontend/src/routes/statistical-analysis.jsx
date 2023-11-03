@@ -21,22 +21,22 @@ export default function StatisticalAnalysis() {
   
 
   return (
-    <div style={{ padding: '24px', backgroundColor: '#0d0f11', minHeight: '100vh' }}>
-      <Title style={{ color: 'white' }} level={1}>Statistics</Title>
-      <Text style={{ color: 'white', marginBottom: '2rem' }}>Basic statistical values for CSV data</Text>
+    <div style={{ padding: '24px', backgroundColor: 'white', minHeight: '100vh' }}>
+      <Title style={{ color: 'black' }} level={1}>Statistics</Title>
+      <Text style={{ color: 'black', marginBottom: '2rem' }}>Basic statistical values</Text>
 
       {Object.entries(allStats).map(([filename, stats]) => (
-        <Card key={filename} title={filename} style={{ marginBottom: '24px', backgroundColor: '#0d0f11', color: 'white' }}>
+        <Card key={filename} title={filename} style={{ marginBottom: '24px', backgroundColor: 'white', color: 'white' }}>
           {typeof stats === 'object' && !Array.isArray(stats) ? (
             Object.entries(stats).map(([column, values]) => {
               const tableData = Object.entries(values).map(([key, value]) => ({ key, value }));
               return (
                 <div key={column}>
-                  <Title style={{ color: '#ffffff' }} level={3}>{column}</Title>
+                  <Title style={{ color: 'black' }} level={3}>{column}</Title>
 
                   <Table
                     pagination={false}
-                    style={{ backgroundColor: '#292929' }}
+                    style={{ backgroundColor: 'white' }}
                     rowClassName={()=>'row-style'}
                     dataSource={tableData}
                     columns={[
@@ -44,13 +44,13 @@ export default function StatisticalAnalysis() {
                         title: 'Stat',
                         dataIndex: 'key',
                         key: 'key',
-                        render: text => <Text style={{ color: '#ffffff' }}>{text}</Text>
+                        render: text => <Text style={{ color: 'black' }}>{text}</Text>
                       },
                       {
                         title: 'Value',
                         dataIndex: 'value',
                         key: 'value',
-                        render: text => <Text style={{ color: '#ffffff' }}>{text}</Text>
+                        render: text => <Text style={{ color: 'black' }}>{text}</Text>
                       }
                     ]}
                   />
