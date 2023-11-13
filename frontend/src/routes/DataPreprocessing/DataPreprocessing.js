@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { cleanDataURL } from "../config/backendURL";
+import { cleanDataURL } from "../../config/backendURL";
 import { Steps, Button } from "antd";
-import FileSelect from "../components/DataPreprocessing/FileSelect";
-import OperationSelect from "../components/DataPreprocessing/OperationSelect";
-import { useFileOperation } from "../hooks/file-operations";
+import FileSelect from "../../components/FileSelect";
+import OperationSelect from "../../components/OperationSelect";
+import { useFileOperation } from "../../hooks/file-operations";
 
 const DataPreprocessing = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedOperation, setSelectedOperation] = useState("clean");
   const [message, setMessage] = useState("");
-  const { doOperationFileAsync } = useFileOperation()
+  const { doOperationFileAsync } = useFileOperation();
 
   const steps = [
     {
@@ -35,10 +35,16 @@ const DataPreprocessing = () => {
     },
     {
       title: "Results",
-      content:<>
-                <div>Filename: <code>{selectedFile ?? "none"}</code></div>
-                <div>Operation: <code>{selectedOperation}</code></div>
-              </>,
+      content: (
+        <>
+          <div>
+            Filename: <code>{selectedFile ?? "none"}</code>
+          </div>
+          <div>
+            Operation: <code>{selectedOperation}</code>
+          </div>
+        </>
+      ),
     },
   ];
 
@@ -58,7 +64,6 @@ const DataPreprocessing = () => {
     setSelectedOperation(event.target.value);
   };
 
-
   const _handleOperationSubmit = () => {
     axios
       .get(apiUrl, { params: { operation: selectedOperation } })
@@ -77,16 +82,17 @@ const DataPreprocessing = () => {
     setDotPosition(value);
   };
 
-
   const handleOperationSubmit = async () => {
     try {
-      const res = await doOperationFileAsync({filename: selectedFile, operation: selectedOperation})
-      alert(`server response: ${JSON.stringify(res)}`)
+      const res = await doOperationFileAsync({
+        filename: selectedFile,
+        operation: selectedOperation,
+      });
+      alert(`server response: ${JSON.stringify(res)}`);
+    } catch (e) {
+      alert(`error: ${e}`);
     }
-    catch(e) {
-      alert(`error: ${e}`)
-    }
-  }
+  };
 
   return (
     // <Wrapper>
@@ -126,10 +132,7 @@ const DataPreprocessing = () => {
           </Button>
         )}
         {currentStep === steps.length - 1 && (
-          <Button
-            type="primary"
-            onClick={handleOperationSubmit}
-          >
+          <Button type="primary" onClick={handleOperationSubmit}>
             Done
           </Button>
         )}

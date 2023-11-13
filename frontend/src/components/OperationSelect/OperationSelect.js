@@ -1,5 +1,5 @@
 import React from "react";
-import { operations } from "./DataPreprocessingOps";
+import { dataPreprocessingOperations } from "../../dataPreprocessingOperations";
 import { Flex, Card } from "antd";
 import styled from "styled-components";
 
@@ -8,8 +8,7 @@ function OperationSelect({
   selectedOperation,
   setSelectedOperation,
 }) {
-  console.log(Object.entries(operations));
-  const operationArray = Object.entries(operations);
+  const operationArray = Object.entries(dataPreprocessingOperations);
   return (
     <>
       <h1>Select Operation</h1>

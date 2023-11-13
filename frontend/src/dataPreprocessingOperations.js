@@ -1,4 +1,4 @@
-export const operations = {
+export const dataPreprocessingOperations = {
   clean: {
     uid: "clean",
     title: "Clean Data",

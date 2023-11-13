@@ -10,13 +10,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
-import { visualizeURL } from "../config/backendURL";
+import { visualizeURL } from "../../config/backendURL";
 import { blue } from "@ant-design/colors";
-import FileSelectDropdown from "../components/FIleSelectDropdown";
-import { useFetchVisualization } from "../hooks/use-fetch-visualization";
+import FileSelectDropdown from "../../components/FileSelectDropdown";
+import { useFetchVisualization } from "../../hooks/use-fetch-visualization";
 
 export default function Visualizations() {
-  const [filename, setFilename] = useState("")
+  const [filename, setFilename] = useState("");
   const { data, error } = useFetchVisualization(filename);
 
   /*useEffect(() => {
@@ -42,7 +42,11 @@ export default function Visualizations() {
           Visualizations
         </h1>
         <Description>Select file and chart type</Description>
-        <FileSelectDropdown onChange={(v) => {setFilename(v)}}/>
+        <FileSelectDropdown
+          onChange={(v) => {
+            setFilename(v);
+          }}
+        />
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart
