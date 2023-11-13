@@ -1,7 +1,7 @@
 import React from "react";
 import { filesURL, getDeleteFileURL } from "../config/backendURL";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { jsonFetcherGet, jsonFetcherDelete } from "./common"
+import { jsonFetcherGet, jsonFetcherDelete } from "./common";
 
 function useFetchFiles_old() {
   const [files, setFiles] = React.useState([]);
@@ -31,28 +31,34 @@ function useFetchFiles_old() {
  * @typedef {{file_name: string, file_size: number}[]} FetchFilesPayload
  * @returns {Promise<FetchFilesPayload>}
  */
-const fetchFiles = () => jsonFetcherGet(filesURL)
+const fetchFiles = () => jsonFetcherGet(filesURL);
 export function useFetchFiles() {
-  const {data, isSuccess, refetch} = useQuery({queryKey: ["files"], queryFn: fetchFiles})
+  const { data, isSuccess, refetch } = useQuery({
+    queryKey: ["files"],
+    queryFn: fetchFiles,
+  });
 
   /**
    * @type {(FetchFilesPayload[number] & {uuid: string})[]}
    */
-  let files = []
-  if (isSuccess) { 
-    data.forEach(f => f["uuid"] = crypto.randomUUID()) 
-    files = data
+  let files = [];
+  if (isSuccess) {
+    data.forEach((f) => (f["uuid"] = crypto.randomUUID()));
+    files = data;
   }
 
-  return {files, refetch}
+  return { files, refetch };
 }
 
-const deleteFile = (filename) => jsonFetcherDelete(getDeleteFileURL(filename))
+const deleteFile = (filename) => jsonFetcherDelete(getDeleteFileURL(filename));
 export function useDeleteFile() {
-  const queryClient = useQueryClient()
-  const { mutate, mutateAsync, reset } = useMutation({mutationFn: deleteFile, onSuccess: () => queryClient.invalidateQueries({queryKey: ["files"]})})
+  const queryClient = useQueryClient();
+  const { mutate, mutateAsync, reset } = useMutation({
+    mutationFn: deleteFile,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["files"] }),
+  });
 
-  return { deleteFile: mutate, deleteFileAsync: mutateAsync, reset }
+  return { deleteFile: mutate, deleteFileAsync: mutateAsync, reset };
 }
 
 export default useFetchFiles;

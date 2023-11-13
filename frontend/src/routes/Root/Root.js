@@ -1,48 +1,15 @@
 import { Outlet } from "react-router-dom";
 import React from "react";
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  FileOutlined,
-  BarChartOutlined,
-  ExperimentOutlined,
-  DotChartOutlined,
-} from "@ant-design/icons";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import { Layout, Menu, Button, theme } from "antd";
 import { Link } from "react-router-dom";
+import { routes } from "../routes";
 
 const { Header, Sider, Content } = Layout;
 
-const pages = [
-  {
-    key: "1",
-    icon: <FileOutlined />,
-    label: "Files",
-    path: "/files",
-  },
-  {
-    key: "2",
-    icon: <ExperimentOutlined />,
-    label: "Data Preprocessing",
-    path: "/data-preprocessing",
-  },
-  {
-    key: "3",
-    icon: <BarChartOutlined />,
-    label: "Statistical Analysis",
-    path: "/statistical-analysis",
-  },
-  {
-    key: "4",
-    icon: <DotChartOutlined />,
-    label: "Visualizations",
-    path: "/visualizations",
-  },
-];
-
 export default function Root() {
   const [collapsed, setCollapsed] = React.useState(false);
-  const [selectedPage, setSelectedPage] = React.useState(pages[0].key);
+  const [selectedPage, setSelectedPage] = React.useState(routes[0].key);
 
   const {
     token: { colorBgContainer },
@@ -52,8 +19,12 @@ export default function Root() {
     <Layout style={{ height: "100%" }}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <Menu theme="dark" mode="inline" defaultSelectedKeys={[selectedPage]}>
-          {pages.map((page) => (
-            <Menu.Item key={page.key} icon={page.icon}>
+          {routes.map((page) => (
+            <Menu.Item
+              key={page.key}
+              icon={page.icon}
+              onClick={() => setSelectedPage(page.key)}
+            >
               <Link to={page.path}>{page.label}</Link>
             </Menu.Item>
           ))}

@@ -21,8 +21,6 @@ function FileList() {
   const { files, refetch } = useFetchFiles();
   const { deleteFile } = useDeleteFile();
 
-  console.log(files);
-
   function handleOnChange(info) {
     console.log("Info", info);
     const { status } = info.file;
@@ -37,9 +35,9 @@ function FileList() {
       };
       
       setFiles([...files, newFile]);*/
-      
+
       message.success(`${info.file.name} file uploaded successfully.`);
-      refetch()
+      refetch();
     } else if (status === "error") {
       message.error(`${JSON.stringify(info.file.response)}`);
     }
@@ -60,8 +58,8 @@ function FileList() {
     const json = await response.json();
     const nextFiles = files.filter((file) => file.file_name !== fileName);
     setFiles(nextFiles);*/
-    
-    deleteFile(fileName)
+
+    deleteFile(fileName);
   }
 
   return (

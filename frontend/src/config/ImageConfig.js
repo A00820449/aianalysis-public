@@ -1,5 +1,5 @@
-import fileDefault from '../assets/file-blank-solid-240.png'
+import fileDefault from "../assets/file-blank-solid-240.png";
 
-export const ImageConfig = {
-    default: fileDefault
-}
+export const imageConfig = {
+  default: fileDefault,
+};
