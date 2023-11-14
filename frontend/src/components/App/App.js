@@ -6,6 +6,9 @@ import StatisticalAnalysis from "../../routes/StatisticalAnalysis";
 import Visualizations from "../../routes/Visualizations";
 import DataPreprocessing from "../../routes/DataPreprocessing";
 import { QueryClient, QueryClientProvider } from "react-query";
+import TermsAndConditions from "../../routes/TermsAndConditions/TermsAndConditions";
+import PrivacyPolicy from "../../routes/PrivacyPolicy/PrivacyPolicy";
+import ContactUs from "../../routes/ContactUs";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +30,18 @@ const router = createBrowserRouter([
       },
       {
         path: "visualizations",
-        element: <Visualizations />,
+      },
+      {
+        path: "terms",
+        element: <TermsAndConditions />,
+      },
+      {
+        path: "privacy",
+        element: <PrivacyPolicy />,
+      },
+      {
+        path: "contact",
+        element: <ContactUs />,
       },
     ],
   },
