@@ -1,37 +1,43 @@
-import React, { useEffect, useRef } from "react";
-import { Flex, Card } from "antd";
+import React from "react";
 import useFetchFiles from "../../hooks/use-fetch-files";
 import styled from "styled-components";
+import { Flex, Card } from "antd";
 
 function FileSelect({ selectedFile, setSelectedFile }) {
   const { files } = useFetchFiles();
 
   return (
     <>
-      <h1>Select File</h1>
-      <p>Select the file you want to preprocess</p>
-      <div>
-        <Flex vertical gap="middle">
-          {files.map((file, i) => (
-            <React.Fragment key={file.uid}>
-              <FileItem
-                type="radio"
-                name="card-list"
-                id={file.uid}
-                value={file.file_name}
-                checked={selectedFile === file.file_name}
-                readOnly
-              ></FileItem>
-              <label htmlFor={file.uid} onClick={() => setSelectedFile(file.file_name)}>
-                <Card hoverable>{file.file_name}</Card>
-              </label>
-            </React.Fragment>
-          ))}
-        </Flex>
-      </div>
+      <Description>Select the file you want to preprocess</Description>
+      <Flex vertical gap="middle">
+        {files.map((file, i) => (
+          <React.Fragment key={file.uid}>
+            <FileItem
+              type="radio"
+              name="card-list"
+              id={file.uid}
+              value={file.file_name}
+              checked={selectedFile === file.file_name}
+              readOnly
+            ></FileItem>
+            <label
+              htmlFor={file.uid}
+              onClick={() => setSelectedFile(file.file_name)}
+            >
+              <Card hoverable>{file.file_name}</Card>
+            </label>
+          </React.Fragment>
+        ))}
+      </Flex>
     </>
   );
 }
+
+const Description = styled.p`
+  font-weight: 500;
+  font-size: 1.2rem;
+  padding: 0 0 1.5rem;
+`;
 
 const FileItem = styled.input`
   display: none;
