@@ -7,27 +7,34 @@ import {
 
 export const routes = [
   {
-    key: "1",
-    icon: <FileOutlined />,
+    key: "my-files",
     label: "My Files",
+    icon: <FileOutlined />,
     path: "/my-files",
   },
   {
-    key: "2",
-    icon: <ExperimentOutlined />,
+    key: "data-preprocessing",
     label: "Data Preprocessing",
+    icon: <ExperimentOutlined />,
     path: "/data-preprocessing",
   },
   {
-    key: "3",
-    icon: <BarChartOutlined />,
+    key: "statistical-analysis",
     label: "Statistical Analysis",
+    icon: <BarChartOutlined />,
     path: "/statistical-analysis",
   },
   {
-    key: "4",
-    icon: <DotChartOutlined />,
+    key: "visualizations",
     label: "Visualizations",
-    path: "/visualizations",
+    icon: <DotChartOutlined />,
+    children: [
+      {
+        key: "scatter",
+        label: "Scatter Chart",
+        icon: <DotChartOutlined />,
+        path: "/visualizations/scatter",
+      },
+    ],
   },
 ];
