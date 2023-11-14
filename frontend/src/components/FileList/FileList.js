@@ -1,7 +1,8 @@
 import React from "react";
+import styled from "styled-components";
+import { COLORS, WEIGHTS } from "../../constants";
 import { FileOutlined, InboxOutlined, UploadOutlined } from "@ant-design/icons";
 import { Space, List, Button, Upload, message } from "antd";
-import { blue } from "@ant-design/colors";
 import {
   fileUploadURL,
   filesURL,
@@ -22,7 +23,6 @@ function FileList() {
   const { deleteFile } = useDeleteFile();
 
   function handleOnChange(info) {
-    console.log("Info", info);
     const { status } = info.file;
     if (status !== "uploading") {
       console.log(info.file, info.fileList);
@@ -82,13 +82,13 @@ function FileList() {
           </p>
         </Dragger>
       ) : (
-        <>
+        <Wrapper>
           <Space
             direction="horizontal"
             align="baseline"
             style={{ width: "100%", justifyContent: "space-between" }}
           >
-            <h1>My Files</h1>
+            <Title>My Files</Title>
             <Upload
               {...props}
               showUploadList={false}
@@ -118,10 +118,23 @@ function FileList() {
               </List.Item>
             )}
           ></List>
-        </>
+        </Wrapper>
       )}
     </>
   );
 }
+
+const Wrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const Title = styled.h1`
+  color: ${COLORS.primary};
+  font-weight: ${WEIGHTS.medium};
+  font-size: 2rem;
+`;
 
 export default FileList;

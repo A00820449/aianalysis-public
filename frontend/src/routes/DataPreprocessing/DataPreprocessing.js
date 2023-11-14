@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { cleanDataURL } from "../../config/backendURL";
-import { Steps, Button } from "antd";
 import FileSelect from "../../components/FileSelect";
 import OperationSelect from "../../components/OperationSelect";
 import { useFileOperation } from "../../hooks/file-operations";
+import { cleanDataURL } from "../../config/backendURL";
+import { Steps, Button } from "antd";
 
 const DataPreprocessing = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -119,8 +119,8 @@ const DataPreprocessing = () => {
     // </Wrapper>
     <>
       <Steps current={currentStep} items={items} />
-      <div style={{ marginTop: "24px" }}>{steps[currentStep].content}</div>
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: "1.5rem" }}>{steps[currentStep].content}</div>
+      <div style={{ marginTop: "1.5rem" }}>
         {currentStep > 0 && (
           <Button style={{ margin: "0 8px" }} onClick={() => prev()}>
             Previous

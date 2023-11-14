@@ -1,7 +1,9 @@
 import React from "react";
+import styled from "styled-components";
+
+import { COLORS, WEIGHTS } from "../../constants";
 import { dataPreprocessingOperations } from "../../dataPreprocessingOperations";
 import { Flex, Card } from "antd";
-import styled from "styled-components";
 
 function OperationSelect({
   selectedFile,
@@ -11,8 +13,10 @@ function OperationSelect({
   const operationArray = Object.entries(dataPreprocessingOperations);
   return (
     <>
-      <h1>Select Operation</h1>
-      <p>Select the operation you want to perform on {selectedFile}</p>
+      <Description>
+        Select the operation you want to perform on{" "}
+        <SelectedFile>{selectedFile}</SelectedFile>
+      </Description>
       <div>
         <Flex gap="middle" wrap="wrap">
           {operationArray.map(([operationName, operationInfo]) => (
@@ -44,6 +48,17 @@ function OperationSelect({
     </>
   );
 }
+
+const Description = styled.p`
+  font-weight: 500;
+  font-size: 1.2rem;
+  padding: 0 0 1.5rem;
+`;
+
+const SelectedFile = styled.span`
+  font-weight: ${WEIGHTS.medium};
+  color: ${COLORS.primary};
+`;
 
 const FileItem = styled.input`
   display: none;

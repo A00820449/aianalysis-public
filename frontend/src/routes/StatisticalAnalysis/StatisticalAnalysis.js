@@ -4,7 +4,8 @@ import axios from "axios";
 import { Card, Typography, Table } from "antd";
 import { exportCSV, exportPDF, statisticsURL } from "../../config/backendURL";
 import { useFetchStats } from "../../hooks/use-fetch-stats";
-const { Title, Text } = Typography;
+import styled from "styled-components";
+import { COLORS, WEIGHTS } from "../../constants";
 
 export default function StatisticalAnalysis() {
   const [filename, setFilename] = useState("");
@@ -23,18 +24,12 @@ export default function StatisticalAnalysis() {
   }, []);*/
 
   return (
-    <div
-      style={{ padding: "24px", backgroundColor: "white", minHeight: "100vh" }}
-    >
-      <Title style={{ color: "black" }} level={1}>
-        Statistics
-      </Title>
-      <Text style={{ color: "black", marginBottom: "2rem" }}>
-        Select a file
-      </Text>
-      <div>
+    <Wrapper>
+      <HeaderWrapper>
+        <Title>Statistics</Title>
+        <Description>Select a file</Description>
         <FileSelectDropdown onChange={(v) => setFilename(v)} />
-      </div>
+      </HeaderWrapper>
       <Card
         key={filename}
         title={filename}
@@ -83,17 +78,13 @@ export default function StatisticalAnalysis() {
                     title: "Stat",
                     dataIndex: "key",
                     key: "key",
-                    render: (text) => (
-                      <Text style={{ color: "black" }}>{text}</Text>
-                    ),
+                    render: (text) => <p style={{ color: "black" }}>{text}</p>,
                   },
                   {
                     title: "Value",
                     dataIndex: "value",
                     key: "value",
-                    render: (text) => (
-                      <Text style={{ color: "black" }}>{text}</Text>
-                    ),
+                    render: (text) => <p style={{ color: "black" }}>{text}</p>,
                   },
                 ]}
               />
@@ -101,6 +92,28 @@ export default function StatisticalAnalysis() {
           );
         })}
       </Card>
-    </div>
+    </Wrapper>
   );
 }
+const Wrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const HeaderWrapper = styled.div`
+  padding-bottom: 2.5rem;
+`;
+
+const Title = styled.h1`
+  color: ${COLORS.primary};
+  font-weight: ${WEIGHTS.medium};
+  font-size: 2rem;
+`;
+
+const Description = styled.p`
+  font-weight: 500;
+  font-size: 1.2rem;
+  padding: 1rem 0;
+`;

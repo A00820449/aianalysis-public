@@ -10,12 +10,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import axios from "axios";
-import { visualizeURL } from "../../config/backendURL";
+import { visualizeURL } from "../../../config/backendURL";
 import { blue } from "@ant-design/colors";
-import FileSelectDropdown from "../../components/FileSelectDropdown";
-import { useFetchVisualization } from "../../hooks/use-fetch-visualization";
+import FileSelectDropdown from "../../../components/FileSelectDropdown";
+import { useFetchVisualization } from "../../../hooks/use-fetch-visualization";
+import { COLORS, WEIGHTS } from "../../../constants";
 
-export default function Visualizations() {
+export default function ScatterVisualization() {
   const [filename, setFilename] = useState("");
   const { data, error } = useFetchVisualization(filename);
 
@@ -38,10 +39,8 @@ export default function Visualizations() {
   return (
     <Wrapper>
       <HeaderWrapper>
-        <h1 style={{ fontSize: "32px", color: `${blue.primary}` }}>
-          Visualizations
-        </h1>
-        <Description>Select file and chart type</Description>
+        <Title>Scatter Chart</Title>
+        <Description>Select a file</Description>
         <FileSelectDropdown
           onChange={(v) => {
             setFilename(v);
@@ -80,14 +79,13 @@ const HeaderWrapper = styled.div`
 `;
 
 const Title = styled.h1`
-  font-weight: 700;
-  font-size: 3rem;
-  line-height: 1;
+  color: ${COLORS.primary};
+  font-weight: ${WEIGHTS.medium};
+  font-size: 2rem;
 `;
 
 const Description = styled.p`
   font-weight: 500;
   font-size: 1.2rem;
-  line-height: 1.5;
-  margin-top: 1rem;
+  padding: 1rem 0;
 `;
