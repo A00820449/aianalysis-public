@@ -28,7 +28,7 @@ function SideMenu({ collapsed }) {
             textTransform: "uppercase",
           }}
         >
-          <Link to="/home">AI Analysis</Link>
+          <Link to="/">AI Analysis</Link>
         </Menu.Item>
         <Filler />
         {routes.map((route) => {
