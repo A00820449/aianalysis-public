@@ -26,10 +26,35 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 ALLOWED_EXTENSIONS = set(["csv"])
 
+def check_valid_csv(filename, date_format="%Y-%m-%d"):
+    df = pd.read_csv(filepath_or_buffer=filename)
+    if not ("x" in df.columns and "y" in df.columns):
+        return "file must have an x and y column"
+    
+    if not pd.api.types.is_numeric_dtype(df["y"]):
+        return "y column must be numeric"
+    
+    if not pd.api.types.is_numeric_dtype(df["x"]):
+        try:
+            df["x"] = pd.to_datetime(df["x"], format=date_format)
+        except ValueError:
+            return f'x column must be numeric or a date (date format: {date_format})'
+    
+    return None
+
+def read_csv_wrapper(filename, date_format="%Y-%m-%d"):
+    df = pd.read_csv(filepath_or_buffer=filename)
+    
+    if not pd.api.types.is_numeric_dtype(df["x"]):
+        try:
+            df["x"] = pd.to_datetime(df["x"], format=date_format)
+            df["x"] = pd.to_numeric(df["x"])
+        except ValueError as e: app.logger.error(e)
+    
+    return df
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 @app.route("/", methods=["GET"])
 @cross_origin()
@@ -55,15 +80,23 @@ def upload_file():
     errors = {}
     success = False
 
+    full_path = None
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         if file_exists(filename):
             errors[file.filename] = "File already exists"
         else:
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            full_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(full_path)
             success = True
     else:
         errors[file.filename] = "File type is not allowed"
+
+    err = check_valid_csv(full_path) if full_path is not None and success else None
+    if err is not None:
+        errors[file.filename] = err
+        success = False
+        os.remove(full_path)
 
     if success and errors:
         errors["message"] = "File successfully uploaded"
@@ -89,7 +122,7 @@ def clean_data():
 
     def clean_file(file_path, method):
         try:
-            df = pd.read_csv(file_path)
+            df = read_csv_wrapper(file_path)
 
             original_rows = len(df)  
 
@@ -189,10 +222,9 @@ def visualize_data():
     data = []
 
     try:
-        with open(file, "r") as f:
-            csv_reader = csv.DictReader(f)
-            for row in csv_reader:
-                data.append(row)
+        df = read_csv_wrapper(file)
+        for _, col in df.iterrows():
+            data.append(col.to_dict())
         return jsonify(data)
     except:
         return jsonify({"error": "CSV file not found"})
@@ -215,7 +247,7 @@ def get_statistics():
         determine_data_type(filename)
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         try:
-            df = pd.read_csv(file_path)
+            df = read_csv_wrapper(file_path)
             file_type = data_type.get(filename, "Unknown")
             stats_json = (
                 df.describe(include="all").transpose().to_json(orient="index")
@@ -283,7 +315,7 @@ def determine_data_type(filename):
         data_type[filename] = "Unknown"
         return
 
-    data = pd.read_csv(file_path)
+    data = read_csv_wrapper(file_path)
     X = data.iloc[:, :-1]
     y = data.iloc[:, -1]
 
