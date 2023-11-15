@@ -17,6 +17,7 @@ function SideMenu({ collapsed }) {
           flexDirection: "column",
           padding: "8px 0 8px",
         }}
+        selectable={false}
       >
         <Menu.Item
           icon={<DeploymentUnitOutlined style={{ fontSize: "1.25rem" }} />}
