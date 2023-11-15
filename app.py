@@ -48,7 +48,7 @@ def read_csv_wrapper(filename, date_format="%Y-%m-%d"):
     if not pd.api.types.is_numeric_dtype(df["x"]):
         try:
             df["x"] = pd.to_datetime(df["x"], format=date_format)
-            df["x"] = pd.to_numeric(df["x"])
+            df["x"] = pd.to_numeric(df["x"]) // (864 * 10 ** 11) # nanoseconds in a day
         except ValueError as e: app.logger.error(e)
     
     return df
