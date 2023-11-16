@@ -448,7 +448,7 @@ def export_to_csv():
     )
 
 
-@app.route("/api/getColumns", methods=["GET"])
+@app.route("/api/v1/getColumns", methods=["GET"])
 def get_file_column_names():
     filename = request.args.get("filename", None)
     if filename is None:
