@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import QuickAccess from "../../components/QuickAccess/QuickAccess";
+import RecentActivity from "../../components/RecentActivity/RecentActivity";
 import { COLORS } from "../../constants";
 
 function Home() {
@@ -9,7 +10,10 @@ function Home() {
       <QuickAccessWrapper>
         <QuickAccess />
       </QuickAccessWrapper>
-      <RecentActivityWrapper></RecentActivityWrapper>
+      <Title>Recent Activity</Title>
+      <RecentActivityWrapper>
+        <RecentActivity />
+      </RecentActivityWrapper>
     </>
   );
 }

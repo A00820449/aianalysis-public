@@ -6,10 +6,12 @@ import { exportCSV, exportPDF, statisticsURL } from "../../config/backendURL";
 import { useFetchStats } from "../../hooks/use-fetch-stats";
 import styled from "styled-components";
 import { COLORS, WEIGHTS } from "../../constants";
+import { useOutletContext } from "react-router-dom";
 
 export default function StatisticalAnalysis() {
   const [filename, setFilename] = useState("");
   const { data: stats } = useFetchStats(filename);
+  const [recentActivities, setRecentActivities] = useOutletContext();
 
   /*useEffect(() => {
     const apiUrl = statisticsURL;
@@ -28,7 +30,17 @@ export default function StatisticalAnalysis() {
       <HeaderWrapper>
         <Title>Statistics</Title>
         <Description>Select a file</Description>
-        <FileSelectDropdown onChange={(v) => setFilename(v)} />
+        <FileSelectDropdown
+          onChange={(v) => {
+            setFilename(v);
+            setRecentActivities((prev) => [
+              ...prev,
+              {
+                children: `Realized ${v} statistical analysis`,
+              },
+            ]);
+          }}
+        />
       </HeaderWrapper>
       <Card
         key={filename}

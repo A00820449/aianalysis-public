@@ -10,28 +10,37 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import FileSelectDropdown from "../../../components/FileSelectDropdown";
-import { useFetchScatterVisualization, useFetchVisualization } from "../../../hooks/use-fetch-visualization";
+import {
+  useFetchScatterVisualization,
+  useFetchVisualization,
+} from "../../../hooks/use-fetch-visualization";
 import { COLORS, WEIGHTS } from "../../../constants";
 import { useFetchColumns } from "../../../hooks/use-fetch-columns";
 import { Select } from "antd";
 import { useQueryClient } from "react-query";
+import { useOutletContext } from "react-router-dom";
 
 export default function ScatterVisualization() {
+  const [recentActivities, setRecentActivities] = useOutletContext();
   const [filename, setFilename] = useState("");
   const [columnX, setColumnX] = useState("");
   const [columnY, setColumnY] = useState("");
 
-  const { columns, remove: removeColsFromCache } = useFetchColumns(filename)
-  const { data, remove: removeVizData } = useFetchScatterVisualization(filename, columnX, columnY)
-
-  useEffect(()=>{
-    removeVizData()
-  }, [columnX, columnY])
+  const { columns, remove: removeColsFromCache } = useFetchColumns(filename);
+  const { data, remove: removeVizData } = useFetchScatterVisualization(
+    filename,
+    columnX,
+    columnY
+  );
 
   useEffect(() => {
-    setColumnX("")
-    setColumnY("")
-  }, [filename])
+    removeVizData();
+  }, [columnX, columnY]);
+
+  useEffect(() => {
+    setColumnX("");
+    setColumnY("");
+  }, [filename]);
 
   return (
     <Wrapper>
@@ -41,10 +50,42 @@ export default function ScatterVisualization() {
         <FileSelectDropdown
           onChange={(v) => {
             setFilename(v);
+            setRecentActivities((prev) => [
+              ...prev,
+              {
+                children: `Visualized ${v} file`,
+              },
+            ]);
           }}
         />
-        <div style={{margin: "0.5rem 0"}}>X: <Select style={{minWidth: 150}} options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select x"} disabled={!columns.length} value={columnX} onChange={(v) => {setColumnX(v); removeColsFromCache()}} /></div>
-        <div style={{margin: "0.5rem 0"}}>Y: <Select style={{minWidth: 150}} options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select y"} disabled={!columns.length} value={columnY} onChange={(v) => {setColumnY(v); removeColsFromCache()}} /></div>
+        <div style={{ margin: "0.5rem 0" }}>
+          X:{" "}
+          <Select
+            style={{ minWidth: 150 }}
+            options={columns.map((v) => ({ value: v, name: v }))}
+            placeholder={"Select x"}
+            disabled={!columns.length}
+            value={columnX}
+            onChange={(v) => {
+              setColumnX(v);
+              removeColsFromCache();
+            }}
+          />
+        </div>
+        <div style={{ margin: "0.5rem 0" }}>
+          Y:{" "}
+          <Select
+            style={{ minWidth: 150 }}
+            options={columns.map((v) => ({ value: v, name: v }))}
+            placeholder={"Select y"}
+            disabled={!columns.length}
+            value={columnY}
+            onChange={(v) => {
+              setColumnY(v);
+              removeColsFromCache();
+            }}
+          />
+        </div>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart

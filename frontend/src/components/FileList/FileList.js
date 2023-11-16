@@ -10,6 +10,7 @@ import {
 } from "../../config/backendURL";
 import useFetchFiles, { useDeleteFile } from "../../hooks/use-fetch-files";
 import { QueryClient, useQueryClient } from "react-query";
+import { useOutletContext } from "react-router-dom";
 
 const { Dragger } = Upload;
 
@@ -22,7 +23,8 @@ const props = {
 function FileList() {
   const { files } = useFetchFiles();
   const { deleteFile } = useDeleteFile();
-  const client = useQueryClient()
+  const client = useQueryClient();
+  const [recentActivities, setRecentActivities] = useOutletContext();
 
   function handleOnChange(info) {
     const { status } = info.file;
@@ -39,7 +41,14 @@ function FileList() {
       setFiles([...files, newFile]);*/
 
       message.success(`${info.file.name} file uploaded successfully.`);
-      client.invalidateQueries({queryKey: ["files"]})
+      client.invalidateQueries({ queryKey: ["files"] });
+      setRecentActivities((prev) => [
+        ...prev,
+        {
+          children: `Uploaded ${info.file.name}`,
+        },
+      ]);
+      refetch();
     } else if (status === "error") {
       message.error(`${JSON.stringify(info.file.response)}`);
     }
@@ -62,6 +71,12 @@ function FileList() {
     setFiles(nextFiles);*/
 
     deleteFile(fileName);
+    setRecentActivities((prev) => [
+      ...prev,
+      {
+        children: `Deleted ${fileName}`,
+      },
+    ]);
   }
 
   return (

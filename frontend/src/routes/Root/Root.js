@@ -7,6 +7,7 @@ import { Layout, Button, theme } from "antd";
 const { Header, Sider, Content } = Layout;
 
 export default function Root() {
+  const [recentActivities, setRecentActivities] = React.useState([]);
   const [collapsed, setCollapsed] = React.useState(false);
 
   const {
@@ -45,7 +46,7 @@ export default function Root() {
             overflow: "auto",
           }}
         >
-          <Outlet />
+          <Outlet context={[recentActivities, setRecentActivities]} />
         </Content>
       </Layout>
     </Layout>
