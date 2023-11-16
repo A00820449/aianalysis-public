@@ -459,8 +459,11 @@ def get_file_column_names():
     if not os.path.exists(file_path):
         return jsonify({"error": "file does not exist"}), 404
     
-    df = pd.read_csv(file_path)
-    
+    try: 
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+        
     return jsonify({"columns": df.columns.tolist()})
 
 def start():
