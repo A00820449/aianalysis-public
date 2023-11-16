@@ -8,12 +8,12 @@ const fetchColumns = (filename) => axios.get(columnsURL, {params: {"filename": f
  * @param {string} filename 
  */
 export function useFetchColumns(filename) {
-    const {data, refetch} = useQuery({queryFn: () => fetchColumns(filename), queryKey: ["columns", filename]})
+    const {data, refetch, remove} = useQuery({queryFn: () => fetchColumns(filename), queryKey: ["columns", filename]})
 
     /**
      * @type {string[]}
      */
     const columns = data?.columns ?? []
 
-    return {columns, refetch}
+    return {columns, refetch, remove}
 }

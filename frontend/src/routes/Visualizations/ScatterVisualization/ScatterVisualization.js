@@ -14,19 +14,24 @@ import { useFetchScatterVisualization, useFetchVisualization } from "../../../ho
 import { COLORS, WEIGHTS } from "../../../constants";
 import { useFetchColumns } from "../../../hooks/use-fetch-columns";
 import { Select } from "antd";
+import { useQueryClient } from "react-query";
 
 export default function ScatterVisualization() {
   const [filename, setFilename] = useState("");
   const [columnX, setColumnX] = useState("");
   const [columnY, setColumnY] = useState("");
 
-  //const { data, error } = useFetchVisualization(filename);
-  const { columns } = useFetchColumns(filename)
-  const { data, remove } = useFetchScatterVisualization(filename, columnX, columnY)
+  const { columns, remove: removeColsFromCache } = useFetchColumns(filename)
+  const { data, remove: removeVizData } = useFetchScatterVisualization(filename, columnX, columnY)
 
   useEffect(()=>{
-    remove()
+    removeVizData()
   }, [columnX, columnY])
+
+  useEffect(() => {
+    setColumnX("")
+    setColumnY("")
+  }, [filename])
 
   return (
     <Wrapper>
@@ -38,8 +43,8 @@ export default function ScatterVisualization() {
             setFilename(v);
           }}
         />
-        <div style={{margin: "0.5rem 0"}}>X: <Select options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select x"} disabled={!columns.length} onChange={(v) => {setColumnX(v)}} /></div>
-        <div style={{margin: "0.5rem 0"}}>Y: <Select options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select y"} disabled={!columns.length} onChange={(v) => {setColumnY(v)}} /></div>
+        <div style={{margin: "0.5rem 0"}}>X: <Select style={{minWidth: 150}} options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select x"} disabled={!columns.length} value={columnX} onChange={(v) => {setColumnX(v); removeColsFromCache()}} /></div>
+        <div style={{margin: "0.5rem 0"}}>Y: <Select style={{minWidth: 150}} options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select y"} disabled={!columns.length} value={columnY} onChange={(v) => {setColumnY(v); removeColsFromCache()}} /></div>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart
