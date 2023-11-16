@@ -448,8 +448,20 @@ def export_to_csv():
     )
 
 
-
-
+@app.route("/api/getColumns", methods=["GET"])
+def get_file_column_names():
+    filename = request.args.get("filename", None)
+    if filename is None:
+        return jsonify({"error": "missing file name"}), 400
+    
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "file does not exist"}), 404
+    
+    df = pd.read_csv(file_path)
+    
+    return jsonify({"columns": df.columns.tolist()})
 
 def start():
     app.run()
