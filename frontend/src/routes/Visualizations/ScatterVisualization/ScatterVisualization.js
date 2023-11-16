@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScatterChart,
   Scatter,
@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import FileSelectDropdown from "../../../components/FileSelectDropdown";
-import { useFetchVisualization } from "../../../hooks/use-fetch-visualization";
+import { useFetchScatterVisualization, useFetchVisualization } from "../../../hooks/use-fetch-visualization";
 import { COLORS, WEIGHTS } from "../../../constants";
 import { useFetchColumns } from "../../../hooks/use-fetch-columns";
 import { Select } from "antd";
@@ -20,8 +20,13 @@ export default function ScatterVisualization() {
   const [columnX, setColumnX] = useState("");
   const [columnY, setColumnY] = useState("");
 
-  const { data, error } = useFetchVisualization(filename);
+  //const { data, error } = useFetchVisualization(filename);
   const { columns } = useFetchColumns(filename)
+  const { data, remove } = useFetchScatterVisualization(filename, columnX, columnY)
+
+  useEffect(()=>{
+    remove()
+  }, [columnX, columnY])
 
   return (
     <Wrapper>
@@ -33,8 +38,8 @@ export default function ScatterVisualization() {
             setFilename(v);
           }}
         />
-        <div style={{margin: "0.5rem 0"}}>X: <Select options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select x"} disabled={!columns.length} onChange={(v) => setColumnX(v)} /></div>
-        <div style={{margin: "0.5rem 0"}}>Y: <Select options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select y"} disabled={!columns.length} onChange={(v) => setColumnY(v)} /></div>
+        <div style={{margin: "0.5rem 0"}}>X: <Select options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select x"} disabled={!columns.length} onChange={(v) => {setColumnX(v)}} /></div>
+        <div style={{margin: "0.5rem 0"}}>Y: <Select options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select y"} disabled={!columns.length} onChange={(v) => {setColumnY(v)}} /></div>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart

@@ -1,4 +1,4 @@
-import { visualizeURL } from "../config/backendURL";
+import { scatterVisualiationUrl, visualizeURL } from "../config/backendURL";
 import axios from "axios";
 import { useQuery } from "react-query";
 
@@ -21,4 +21,21 @@ export function useFetchVisualization(filename) {
   });
 
   return { data: data ?? [], refetch, error };
+}
+
+const fetchScatterVisualization = (filename, columnX, columnY) => axios.get(scatterVisualiationUrl, {params: {filename, columnX, columnY}}).then(r => r.data)
+
+/**
+ * @param {string} filename 
+ * @param {string} columnX 
+ * @param {string} columnY 
+ */
+export function useFetchScatterVisualization(filename, columnX, columnY) {
+  const { data, refetch, remove } = useQuery({queryKey: ["visualize", "scatter", filename], queryFn: () => fetchScatterVisualization(filename, columnX, columnY)})
+  /**
+   * @type {{x: any, y: any}[]}
+   */
+  const visualizationData = data?.data ?? []
+
+  return { data: visualizationData, refetch, remove }
 }
