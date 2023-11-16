@@ -24,6 +24,12 @@ export const exportPDF = baseURL.toString();
 baseURL.pathname = "/api/v1/export/csv";
 export const exportCSV = baseURL.toString();
 
+baseURL.pathname = "/api/v1/getColumns";
+export const columnsURL = baseURL.toString();
+
+baseURL.pathname = "/api/v1/scatterVisualiation"
+export const scatterVisualiationUrl = baseURL.toString()
+
 export function getDeleteFileURL(fileName) {
   baseURL.pathname = `/api/v1/delete/${fileName}`;
   return baseURL.toString();

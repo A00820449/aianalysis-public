@@ -489,8 +489,49 @@ def export_to_csv():
     )
 
 
+@app.route("/api/v1/getColumns", methods=["GET"])
+def get_file_column_names():
+    filename = request.args.get("filename", None)
+    if filename is None:
+        return jsonify({"error": "missing file name"}), 400
+    
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    
+    if not os.path.exists(file_path):
+        return jsonify({"error": "file does not exist"}), 404
+    
+    try: 
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 404
+        
+    return jsonify({"columns": df.columns.tolist()})
 
-
+@app.route("/api/v1/scatterVisualiation", methods=["GET"])
+def scatter_visualization():
+    filename = request.args.get("filename", None)
+    column_x = request.args.get("columnX", None)
+    column_y = request.args.get("columnY", None)
+    
+    if filename is None or column_x is None or column_y is None:
+        return jsonify({"error": "arguments missing"}), 400
+    
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    if not os.path.isfile(file_path):
+        return jsonify({"error": "file not found"}), 404
+    
+    try: df = pd.read_csv(file_path)
+    except Exception as e: return jsonify({"error": str(e)}), 400
+        
+    if not (column_x in df.columns and column_y in df.columns):
+        return jsonify({"error": "column names mismarch"}), 400
+    
+    data = []
+    for _, row in df.iterrows():
+        data.append({"x": row[column_x], "y": row[column_y]})
+        
+    return jsonify({"data": data})
+    
 
 def start():
     app.run()

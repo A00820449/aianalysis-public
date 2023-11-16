@@ -9,32 +9,29 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
-import { visualizeURL } from "../../../config/backendURL";
-import { blue } from "@ant-design/colors";
 import FileSelectDropdown from "../../../components/FileSelectDropdown";
-import { useFetchVisualization } from "../../../hooks/use-fetch-visualization";
+import { useFetchScatterVisualization, useFetchVisualization } from "../../../hooks/use-fetch-visualization";
 import { COLORS, WEIGHTS } from "../../../constants";
+import { useFetchColumns } from "../../../hooks/use-fetch-columns";
+import { Select } from "antd";
+import { useQueryClient } from "react-query";
 
 export default function ScatterVisualization() {
   const [filename, setFilename] = useState("");
-  const { data, error } = useFetchVisualization(filename);
+  const [columnX, setColumnX] = useState("");
+  const [columnY, setColumnY] = useState("");
 
-  /*useEffect(() => {
-    const apiUrl = visualizeURL;
+  const { columns, remove: removeColsFromCache } = useFetchColumns(filename)
+  const { data, remove: removeVizData } = useFetchScatterVisualization(filename, columnX, columnY)
 
-    axios
-      .get(apiUrl)
-      .then((response) => {
-        setData((prevData) => {
-          console.log(prevData);
-          return response.data;
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  },[]);*/
+  useEffect(()=>{
+    removeVizData()
+  }, [columnX, columnY])
+
+  useEffect(() => {
+    setColumnX("")
+    setColumnY("")
+  }, [filename])
 
   return (
     <Wrapper>
@@ -46,6 +43,8 @@ export default function ScatterVisualization() {
             setFilename(v);
           }}
         />
+        <div style={{margin: "0.5rem 0"}}>X: <Select style={{minWidth: 150}} options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select x"} disabled={!columns.length} value={columnX} onChange={(v) => {setColumnX(v); removeColsFromCache()}} /></div>
+        <div style={{margin: "0.5rem 0"}}>Y: <Select style={{minWidth: 150}} options={columns.map((v) => ({value: v, name: v}))} placeholder={"Select y"} disabled={!columns.length} value={columnY} onChange={(v) => {setColumnY(v); removeColsFromCache()}} /></div>
       </HeaderWrapper>
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart

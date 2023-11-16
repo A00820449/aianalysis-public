@@ -33,7 +33,7 @@ function useFetchFiles_old() {
  */
 const fetchFiles = () => jsonFetcherGet(filesURL);
 export function useFetchFiles() {
-  const { data, isSuccess, refetch } = useQuery({
+  const { data, isSuccess, refetch, remove } = useQuery({
     queryKey: ["files"],
     queryFn: fetchFiles,
   });
@@ -47,7 +47,7 @@ export function useFetchFiles() {
     files = data;
   }
 
-  return { files, refetch };
+  return { files, refetch, remove };
 }
 
 const deleteFile = (filename) => jsonFetcherDelete(getDeleteFileURL(filename));

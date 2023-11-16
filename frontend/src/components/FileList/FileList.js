@@ -9,6 +9,7 @@ import {
   getDeleteFileURL,
 } from "../../config/backendURL";
 import useFetchFiles, { useDeleteFile } from "../../hooks/use-fetch-files";
+import { QueryClient, useQueryClient } from "react-query";
 
 const { Dragger } = Upload;
 
@@ -19,8 +20,9 @@ const props = {
 };
 
 function FileList() {
-  const { files, refetch } = useFetchFiles();
+  const { files } = useFetchFiles();
   const { deleteFile } = useDeleteFile();
+  const client = useQueryClient()
 
   function handleOnChange(info) {
     const { status } = info.file;
@@ -37,7 +39,7 @@ function FileList() {
       setFiles([...files, newFile]);*/
 
       message.success(`${info.file.name} file uploaded successfully.`);
-      refetch();
+      client.invalidateQueries({queryKey: ["files"]})
     } else if (status === "error") {
       message.error(`${JSON.stringify(info.file.response)}`);
     }
