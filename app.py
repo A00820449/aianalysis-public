@@ -320,35 +320,44 @@ def determine_data_type(filename):
     y = data.iloc[:, -1]
 
     # Linear Regression Check
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-    lin_reg = LinearRegression()
-    lin_reg.fit(X_train, y_train)
-    predictions = lin_reg.predict(X_test)
-    mse = mean_squared_error(y_test, predictions)
-    normalized_mse = mse / (y_test.max() - y_test.min())
+    try:
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
+        lin_reg = LinearRegression()
+        lin_reg.fit(X_train, y_train)
+        predictions = lin_reg.predict(X_test)
+        mse = mean_squared_error(y_test, predictions)
+        normalized_mse = mse / (y_test.max() - y_test.min())
 
-    if normalized_mse < 0.1:
-        data_type[filename] = "Linear Model"
-        return
-
+        if normalized_mse < 0.1:
+            data_type[filename] = "Linear Model"
+            return
+    except Exception as e:
+        print(f"Error in Linear Regression check: {e}")
+        
     # Parabola Check
-    polynomial = make_pipeline(PolynomialFeatures(2), LinearRegression())
-    polynomial.fit(X_train, y_train)
-    poly_mse = mean_squared_error(y_test, polynomial.predict(X_test))
+    try:
+        polynomial = make_pipeline(PolynomialFeatures(2), LinearRegression())
+        polynomial.fit(X_train, y_train)
+        poly_mse = mean_squared_error(y_test, polynomial.predict(X_test))
 
-    if poly_mse < 0.5:
-        data_type[filename] = "Parabola"
-        return
-
+        if poly_mse < 0.5:
+            data_type[filename] = "Parabola"
+            return
+    except Exception as e:
+        print(f"Error in Parabola check: {e}")
+    
     # Cluster Check
-    kmeans = KMeans(n_clusters=2)
-    kmeans.fit(X)
-    silhouette_score = np.mean(silhouette_samples(X, kmeans.labels_))
-    if silhouette_score > 0.3:
-        data_type[filename] = "Cluster"
-        return
+    try:
+        kmeans = KMeans(n_clusters=2)
+        kmeans.fit(X)
+        silhouette_score = np.mean(silhouette_samples(X, kmeans.labels_))
+        if silhouette_score > 0.3:
+            data_type[filename] = "Cluster"
+            return
+    except Exception as e:
+        print(f"Error in Cluster check: {e}")
 
     # Time Series Check
     try:
