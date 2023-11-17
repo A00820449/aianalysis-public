@@ -55,11 +55,6 @@ export const dataPreprocessingOperations = {
     title: "UMAP",
     description: "Perform Uniform Manifold Approximation and Projection",
   },
-  lda: {
-    uid: "lda",
-    title: "LDA",
-    description: "Perform Linear Discriminant Analysis",
-  },
   kmeans: {
     uid: "kmeans",
     title: "K-Means",
@@ -74,35 +69,5 @@ export const dataPreprocessingOperations = {
     uid: "hierarchical",
     title: "Hierarchical",
     description: "Perform Hierarchical Clustering",
-  },
-  linearRegression: {
-    uid: "linearRegression",
-    title: "Linear Regression",
-    description: "Perform Linear Regression",
-  },
-  logisticRegression: {
-    uid: "logisticRegression",
-    title: "Logistic Regression",
-    description: "Perform Logistic Regression",
-  },
-  svm: {
-    uid: "svm",
-    title: "SVM",
-    description: "Perform Support Vector Machine",
-  },
-  decisionTree: {
-    uid: "decisionTree",
-    title: "Decision Tree",
-    description: "Perform Decision Tree",
-  },
-  randomForest: {
-    uid: "randomForest",
-    title: "Random Forest",
-    description: "Perform Random Forest",
-  },
-  naiveBayes: {
-    uid: "naiveBayes",
-    title: "Naive Bayes",
-    description: "Perform Naive Bayes",
   },
 };

@@ -110,6 +110,8 @@ def upload_file():
         return resp
 
 
+from flask import jsonify
+
 @app.route("/api/v1/analyze", methods=["GET"])
 @cross_origin()
 def clean_data():
@@ -120,11 +122,11 @@ def clean_data():
         try:
             df = read_csv_wrapper(file_path)
 
-            original_rows = len(df)  
+            original_rows = len(df)
 
             if method == "clean":
                 df.dropna(inplace=True)
-                rows_changed = original_rows - len(df)  
+                rows_changed = original_rows - len(df)
             elif method == "patch":
                 original_df = df.copy()
                 df.fillna(df.mean(), inplace=True)
@@ -139,7 +141,7 @@ def clean_data():
 
                 df = df[~((df < lower_bound) | (df > upper_bound)).any(axis=1)]
 
-                rows_changed = original_rows - len(df) 
+                rows_changed = original_rows - len(df)
             elif method == "scale":
                 # Scale the data to be between 0 and 1
                 scaler = MinMaxScaler()
@@ -163,23 +165,62 @@ def clean_data():
                 # Convert the transformed data back to a dataframe
                 df = pd.DataFrame(transformed_data, columns=[f'PC{i+1}' for i in range(transformed_data.shape[1])])
                 rows_changed = original_rows
-                
             elif method == "bin":
                 # Binning the 'x' column
                 df['x_binned'] = pd.cut(df['x'], bins=10, labels=False)
-                            
+
                 # Binning the 'y' column
                 df['y_binned'] = pd.cut(df['y'], bins=10, labels=False)
-                            
+
                 rows_changed = original_rows
-                
             elif method == "discretize":
                 # Binning the 'x' column into equal frequency bins
                 df['x_binned'] = pd.qcut(df['x'], q=10, labels=False)
-                            
+
                 # Binning the 'y' column into equal frequency bins
                 df['y_binned'] = pd.qcut(df['y'], q=10, labels=False)
-                            
+
+                rows_changed = original_rows
+            elif method == "oneHotEncode":
+                # Perform one-hot encoding on categorical data
+                df = pd.get_dummies(df)
+                rows_changed = original_rows
+            elif method == "tsne":
+                # Perform t-distributed Stochastic Neighbor Embedding
+                # Note: You need to provide appropriate parameters for t-SNE
+                from sklearn.manifold import TSNE
+                tsne = TSNE(n_components=2)
+                transformed_data = tsne.fit_transform(df)
+                df = pd.DataFrame(transformed_data, columns=['Dimension 1', 'Dimension 2'])
+                rows_changed = original_rows
+            elif method == "umap":
+                # Perform Uniform Manifold Approximation and Projection
+                # Note: You need to provide appropriate parameters for UMAP
+                import umap
+                umap_model = umap.UMAP(n_components=2)
+                transformed_data = umap_model.fit_transform(df)
+                df = pd.DataFrame(transformed_data, columns=['UMAP 1', 'UMAP 2'])
+                rows_changed = len(df)
+            elif method == "kmeans":
+                # Perform K-Means Clustering
+                # Note: You need to provide appropriate parameters for K-Means
+                from sklearn.cluster import KMeans
+                kmeans = KMeans(n_clusters=2)
+                df['Cluster'] = kmeans.fit_predict(df)
+                rows_changed = original_rows
+            elif method == "dbscan":
+                # Perform DBSCAN Clustering
+                # Note: You need to provide appropriate parameters for DBSCAN
+                from sklearn.cluster import DBSCAN
+                dbscan = DBSCAN(eps=0.5, min_samples=5)
+                df['Cluster'] = dbscan.fit_predict(df)
+                rows_changed = original_rows
+            elif method == "hierarchical":
+                # Perform Hierarchical Clustering
+                # Note: You need to provide appropriate parameters for Hierarchical Clustering
+                from sklearn.cluster import AgglomerativeClustering
+                hierarchical = AgglomerativeClustering(n_clusters=2)
+                df['Cluster'] = hierarchical.fit_predict(df)
                 rows_changed = original_rows
             else:
                 raise ValueError("Invalid cleaning method")
@@ -195,12 +236,11 @@ def clean_data():
     total_rows_changed = 0
 
     for filename in os.listdir(upload_folder):
-        if filename == FileName:  
+        if filename == FileName:
             file_path = os.path.join(upload_folder, filename)
             if os.path.isfile(file_path) and file_path.endswith(".csv"):
                 rows_changed = clean_file(file_path, operation)
-                total_rows_changed += rows_changed
-
+                total_rows_changed = rows_changed
 
     response_message = f"Total rows changed: {total_rows_changed} ({operation} in {FileName})"
     print(response_message)
