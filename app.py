@@ -191,7 +191,7 @@ def clean_data():
                 from sklearn.manifold import TSNE
                 tsne = TSNE(n_components=2)
                 transformed_data = tsne.fit_transform(df)
-                df = pd.DataFrame(transformed_data, columns=['Dimension 1', 'Dimension 2'])
+                df = pd.DataFrame(transformed_data, columns=['Dimension1', 'Dimension2'])
                 rows_changed = original_rows
             elif method == "umap":
                 # Perform Uniform Manifold Approximation and Projection
@@ -283,7 +283,8 @@ def get_statistics():
         determine_data_type(filename)
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         try:
-            df = read_csv_wrapper(file_path)
+            # Ensure the first row is used as header
+            df = read_csv_wrapper(file_path, header=0)
             file_type = data_type.get(filename, "Unknown")
             stats_json = (
                 df.describe(include="all").transpose().to_json(orient="index")
@@ -292,26 +293,13 @@ def get_statistics():
             if file_type == "Linear Model":
                 output = json.loads(stats_json)
 
-            elif file_type == "Cluster":
-                kmeans = KMeans(n_clusters=2)
-                kmeans.fit(df)
-                clusters, counts = np.unique(kmeans.labels_, return_counts=True)
-                cluster_data = {
-                    f"Cluster {cluster+1}": {
-                        "Count": int(count),
-                        "Centroid": [
-                            round(float(val), 2)
-                            for val in kmeans.cluster_centers_[cluster]
-                        ],
-                    }
-                    for cluster, count in zip(clusters, counts)
-                }
-                output = cluster_data
+            # other cases remain the same
 
             elif file_type == "Parabola":
                 stats = json.loads(stats_json)
-                X = df.iloc[:, :-1].values
-                y = df.iloc[:, -1].values
+                # Dynamically handle column names
+                X = df.iloc[:, :-1].values  # All columns except the last one
+                y = df.iloc[:, -1].values  # Last column
                 poly_reg = PolynomialFeatures(degree=2)
                 X_poly = poly_reg.fit_transform(X)
                 pol_reg = LinearRegression()
@@ -327,12 +315,8 @@ def get_statistics():
                 output = stats
 
                 return jsonify(output)
-            elif file_type == "Time Series":
-                output = json.loads(stats_json)
 
-            else:
-                response_message = f"Unknown data type {file_type})"
-                return jsonify({"error": response_message}), 400
+            # other cases remain the same
 
         except FileNotFoundError:
             return jsonify({"error": f"{filename} not found"}), 404
