@@ -27,30 +27,26 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = set(["csv"])
 
 def check_valid_csv(filename, date_format="%Y-%m-%d"):
-    df = pd.read_csv(filepath_or_buffer=filename)
-    if not ("x" in df.columns and "y" in df.columns):
-        return "file must have an x and y column"
-    
-    if not pd.api.types.is_numeric_dtype(df["y"]):
-        return "y column must be numeric"
-    
-    if not pd.api.types.is_numeric_dtype(df["x"]):
-        try:
-            df["x"] = pd.to_datetime(df["x"], format=date_format)
-        except ValueError:
-            return f'x column must be numeric or a date (date format: {date_format})'
+    try: pd.read_csv(filepath_or_buffer=filename)
+    except Exception as e: return str(e)
     
     return None
 
 def read_csv_wrapper(filename, date_format="%Y-%m-%d"):
     df = pd.read_csv(filepath_or_buffer=filename)
     
-    if not pd.api.types.is_numeric_dtype(df["x"]):
+    for col_name, col_data in df.items():
+        if pd.api.types.is_numeric_dtype(col_data):
+            continue
+        
         try:
-            df["x"] = pd.to_datetime(df["x"], format=date_format)
-            df["x"] = pd.to_numeric(df["x"]) // (864 * 10 ** 11) # nanoseconds in a day
-        except ValueError as e: app.logger.error(e)
-    
+            new_data = pd.to_datetime(col_data, format=date_format)
+            new_data = pd.to_numeric(new_data) // (864 * 10 ** 11) # nanoseconds in a day
+            df[col_name] = new_data
+        except ValueError as e:
+            app.logger.error(e)
+            df = df.drop(columns=[col_name])
+
     return df
 
 def allowed_file(filename):
@@ -501,7 +497,7 @@ def get_file_column_names():
         return jsonify({"error": "file does not exist"}), 404
     
     try: 
-        df = pd.read_csv(file_path)
+        df = read_csv_wrapper(file_path)
     except Exception as e:
         return jsonify({"error": str(e)}), 404
         
@@ -520,7 +516,7 @@ def scatter_visualization():
     if not os.path.isfile(file_path):
         return jsonify({"error": "file not found"}), 404
     
-    try: df = pd.read_csv(file_path)
+    try: df = read_csv_wrapper(file_path)
     except Exception as e: return jsonify({"error": str(e)}), 400
         
     if not (column_x in df.columns and column_y in df.columns):
