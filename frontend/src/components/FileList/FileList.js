@@ -48,7 +48,6 @@ function FileList() {
           children: `Uploaded ${info.file.name}`,
         },
       ]);
-      refetch();
     } else if (status === "error") {
       message.error(`${JSON.stringify(info.file.response)}`);
     }
