@@ -25,11 +25,7 @@ export const dataPreprocessingOperations = {
     description:
       "Standardize the data to have a mean of 0 and standard deviation of 1",
   },
-  oneHotEncode: {
-    uid: "oneHotEncode",
-    title: "One Hot Encode Data",
-    description: "One hot encode categorical data",
-  },
+
   bin: {
     uid: "bin",
     title: "Bin Data",
