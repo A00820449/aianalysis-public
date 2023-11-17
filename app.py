@@ -284,7 +284,7 @@ def get_statistics():
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         try:
             # Ensure the first row is used as header
-            df = read_csv_wrapper(file_path, header=0)
+            df = read_csv_wrapper(file_path)
             file_type = data_type.get(filename, "Unknown")
             stats_json = (
                 df.describe(include="all").transpose().to_json(orient="index")
@@ -315,7 +315,15 @@ def get_statistics():
                 output = stats
 
                 return jsonify(output)
-
+            elif file_type == "Unknown":
+                # Compute basic statistics for x and y columns
+                basic_stats = df.describe().to_dict()
+                output = {
+                    "Basic Statistics": {
+                        "X": basic_stats[df.columns[0]],
+                        "Y": basic_stats[df.columns[1]]
+                    }
+                }
             # other cases remain the same
 
         except FileNotFoundError:
@@ -390,9 +398,9 @@ def determine_data_type(filename):
             return
     except Exception as e:
         print(f"Error in Time Series check: {e}")
-
-    data_type[filename] = "Unknown"
-
+        
+    data_type[filename] = "Unknown "
+    return 
 
 @app.route("/<path>", methods=["GET"])
 @cross_origin()
