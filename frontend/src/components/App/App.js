@@ -8,7 +8,7 @@ import DataPreprocessing from "../../routes/DataPreprocessing";
 import { QueryClient, QueryClientProvider } from "react-query";
 import TermsAndConditions from "../../routes/TermsAndConditions/TermsAndConditions";
 import PrivacyPolicy from "../../routes/PrivacyPolicy/PrivacyPolicy";
-import ContactUs from "../../routes/ContactUs";
+import AboutUs from "../../routes/AboutUs";
 import Home from "../../routes/Home";
 
 const router = createBrowserRouter([
@@ -51,8 +51,8 @@ const router = createBrowserRouter([
         element: <PrivacyPolicy />,
       },
       {
-        path: "contact",
-        element: <ContactUs />,
+        path: "about",
+        element: <AboutUs />,
       },
     ],
   },

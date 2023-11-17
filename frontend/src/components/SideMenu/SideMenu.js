@@ -83,14 +83,14 @@ function SideMenu({ collapsed }) {
               <FooterLink to="/privacy">Privacy Policy</FooterLink>
             </Menu.Item>
             <Menu.Item
-              key="contact"
-              title="Contact Us"
+              key="about"
+              title="About Us"
               style={{
                 textAlign: "center",
                 height: "auto",
               }}
             >
-              <FooterLink to="/contact">Contact Us</FooterLink>
+              <FooterLink to="/about">About Us</FooterLink>
             </Menu.Item>
           </>
         )}

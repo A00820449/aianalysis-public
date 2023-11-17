@@ -1,7 +1,11 @@
 import { Outlet } from "react-router-dom";
 import React from "react";
 import SideMenu from "../../components/SideMenu/SideMenu";
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  MessageOutlined,
+} from "@ant-design/icons";
 import { Layout, Button, theme } from "antd";
 import Chat from "../../components/Chat/Chat";
 
@@ -10,7 +14,7 @@ const { Header, Sider, Content } = Layout;
 export default function Root() {
   const [recentActivities, setRecentActivities] = React.useState([]);
   const [collapsed, setCollapsed] = React.useState(false);
-  const [collapsedChat, setCollapsedChat] = React.useState(false);
+  const [collapsedChat, setCollapsedChat] = React.useState(true);
 
   const {
     token: { colorBgContainer },
@@ -47,7 +51,7 @@ export default function Root() {
           />
           <Button
             type="text"
-            icon={collapsedChat ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            icon={<MessageOutlined />}
             onClick={() => setCollapsedChat(!collapsedChat)}
             style={{
               fontSize: "16px",

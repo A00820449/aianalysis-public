@@ -1,33 +1,51 @@
+import styled from "styled-components";
+import { COLORS, WEIGHTS } from "../../constants";
+import { terms } from "./terms";
+
 function TermsAndConditions() {
   return (
-    <div>
-      <h1>Terms and Conditions</h1>
-      <p>
+    <Wrapper>
+      <Title>Terms and Conditions</Title>
+      <Description>
         By using this website, you agree to the following terms and conditions:
-      </p>
-      <p>
-        1. You will not use this website for any purpose that is unlawful or
-        prohibited by these terms and conditions.
-      </p>
-      <p>
-        2. You will not use this website in any manner that could damage,
-        disable, overburden, or impair this website.
-      </p>
-      <p>3. You will not use this website to upload any malicious software.</p>
-      <p>
-        4. You will not use this website to upload any material that is obscene,
-        defamatory, or offensive.
-      </p>
-      <p>
-        5. You will not use this website to upload any material that infringes
-        on the intellectual property rights of others.
-      </p>
-      <p>
-        6. You will not use this website to upload any material that is in
-        violation of any applicable laws or regulations.
-      </p>
-    </div>
+      </Description>
+      <TermsList>
+        {terms.map((t) => (
+          <Term key={t.id}>{t.term}</Term>
+        ))}
+      </TermsList>
+    </Wrapper>
   );
 }
+
+const Wrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const Title = styled.h1`
+  color: ${COLORS.primary};
+  font-weight: ${WEIGHTS.medium};
+  font-size: 2rem;
+`;
+
+const Description = styled.p`
+  font-weight: ${WEIGHTS.normal};
+  font-size: 1.2rem;
+  padding: 1rem 0;
+`;
+
+const TermsList = styled.ul`
+  list-style: revert;
+  padding-left: 16px;
+`;
+
+const Term = styled.li`
+  font-weight: ${WEIGHTS.normal};
+  font-size: 1.2rem;
+  padding: 1rem 0;
+`;
 
 export default TermsAndConditions;
